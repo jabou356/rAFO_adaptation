@@ -571,14 +571,14 @@ elseif side==2
     
 end
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data)
+[AnalTA]=AvariablesgeneratorTimenorm(GroupData.Cycle_Table,data)
 
 clear GroupData
 
-[pathname]=uigetdir('Sélectionne le dossier où tu désires sauvegarder ton fichier AnalRBI');
-save([pathname, 'AnalRBITA'], 'AnalTA'); 
+[pathname]=uiputfile('Sélectionne le dossier où tu désires sauvegarder ton fichier AnalRBI');
+save(filename,'AnalTA'); 
 
-disp('AnalRBITA saved')
+disp('AnalTA saved')
 
 
 % --------------------------------------------------------------------

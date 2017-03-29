@@ -1,35 +1,27 @@
 
-function FilterRBI
-[fn,pn]=uigetfile('*.mat','select the calibration file');
-load([pn,fn],'-mat');
+function fdata = FilterRBI(data,windowlength,type,dim)
+% This function do a Rectified bin averaging filtering of EMG data
+%Inputs: data: 2d or 3d Data tables
+% window length: Length of the rbi window
+%type: 1=vector; 2= matrixè 3= 3D matrix
+%dim: dimension of the table corresponding to time
 
-[fn,pn]=uigetfile('*.mat','select the data file');
-load([pn,fn],'-mat');
+dimension=size(data);
 
-lenght=size(data(:,:),2);
-
-Signal=input('Quel signal voulez-vous filtrer? ');
-
-%Détermine le numéro de table du signal d'intérêt à partir du fichier
-%de calibration
-s=['numSignal=find(strcmp(chan_name(1,:),',char(39),Signal,char(39),')==1);'];eval(s);
-clear s
-
-
-for i=5:lenght-4
+if type == 3
     
-    s=['fdata(:,i-4)=mean(abs(data(',num2str(numSignal),',i-4:i+4)),2);'];eval(s);
-        
+fdata(1:dimension(1),1:dimension(2),1:dimension(3))=nan;
+
+    if dim == 1
+       
+        for itime=ceil(windowlength/2):dimension(1)-ceil(windowlength/2)
+            fdata(itime,:,:)=mean(data(itime-ceil(windowlength/2):itime+ceil(windowlength/2),:,:),1);
+        end
+    end
+    
 end
 
-%----------------%
-% Enregistrer
-%----------------%
-cd(pn); %On va dans le repertoire du sujet traité
-
-% Enregistrement des données
-[outfn,outpn]=uiputfile([fn]);
-save([outpn,outfn],'data','fdata','Signal');
+ 
 
 
 
