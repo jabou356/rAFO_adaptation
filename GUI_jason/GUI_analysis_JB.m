@@ -561,7 +561,7 @@ function TAAnal_TimeNorm_Callback(hObject, eventdata, handles)
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
 load([pn,fn],'-mat');
 
-side=menu('Do you want to Analyse right or left TA?','Right','Left');
+side=menu('Do you want to Analyse right or left TA?','Right (RTA)','Left (LTA)','Just TA (TA)');
 if side==1
     data=Filter_RBI(GroupData.RTA,9,3,1);
     
@@ -569,16 +569,23 @@ elseif side==2
     
     data=Filter_RBI(GroupData.LTA,9,3,1);
     
+elseif side==3
+    
+    data=Filter_RBI(GroupData.TA,9,3,1);
+    
 end
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data)
+[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn)
 
-clear GroupData
-
-[pathname]=uigetdir('Sélectionne le dossier où tu désires sauvegarder ton fichier AnalRBI');
-save([pathname, 'AnalRBITA'], 'AnalTA'); 
+save([pn, 'AnalRBITA.mat'], 'AnalTA'); 
 
 disp('AnalRBITA saved')
+
+TAratiovariable = EMGratioCode(GroupData,AnalTA, pn);
+
+save([pn, 'TAratio.mat'], 'TAratiovariable'); 
+
+disp('TAratio saved')
 
 
 % --------------------------------------------------------------------

@@ -1,18 +1,13 @@
-% Code to compute TA ratios
-clear; clc;
+function [ TAratiovariable ] = EMGratioCode( GroupData,AnalTA,path )
+%EMGratioCode Is used to compute EMGratio as in Bouffard et al. 2016 Neural
+%Plasticity during force field adaptation. Inputs include the Force Command
+%Signal synchronised on Heelstrike and the RBIAnalTA signal synchronised on
+%the middle of the ENCO signal during pushoff.
 
-%% Switch
-saveswitch=0;
 
 %% Load files
-[fn, pn] = uigetfile('Go get your KINEMATIC analysis file (AnalENCO)') ;
+[fn, pn] = uigetfile(path, 'Go get your KINEMATIC analysis file (AnalENCO)') ;
 load([pn fn],'meanABSError', 'BASELINE2end','CHAMPend');
-
-[fn, pn] = uigetfile(pn,'Go get your TA analysis file (AnalRBITA)') ;
-load([pn fn]);
-
-[fn, pn] = uigetfile(pn,'Go get your GroupDataCONS_F file') ;
-load([pn fn]);
 
 load([pn 'SyncData.mat']);
 load([pn 'CyclesCritiques.mat']);
@@ -114,10 +109,10 @@ TAratiovariable.FFearlyratio=FFearlyratio;
 TAratiovariable.log2FFearlyratio=log2FFearlyratio;
 TAratiovariable.FFlateratio=FFlateratio;
 TAratiovariable.log2FFlateratio=log2FFlateratio;
+TAratiovariable.baselinelateTA=baselinelateTA;
+TAratiovariable.FFearlyTA=FFearlyTA;
+TAratiovariable.FFlateTA=FFlateTA;
 
-if saveswitch==1
-[fn, pn]=uiputfile('Save your variables');
-save([pn fn],'TAratiovariable');
+
 end
 
-clearvars -except TAratiovariable 
