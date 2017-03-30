@@ -1,5 +1,5 @@
 
-function [AnalTA]= TAvariablesgenerator(Cycle_Table,data)
+function [AnalTA]= TAvariablesgenerator(Cycle_Table,data,path)
 %% Baseline 2 TA enligné %MODIFICATION 30% au lieur de 20% du swing lignes 15:17, 50, 71, 170, 263
 
 n=find(isnan(Cycle_Table(1,1,:))==1);
@@ -9,8 +9,8 @@ else
     n=30
 end
 
-load('SyncData.mat');
-load('CyclesCritiques.mat');
+load([path, 'SyncData.mat']);
+load([path 'CyclesCritiques.mat']);
 
 AnalTA.TA.baseline2(1:1300,1:588,1:30)=nan;
 AnalTA.TA.CHAMP(1:1300,1:397,1:30)=nan;
