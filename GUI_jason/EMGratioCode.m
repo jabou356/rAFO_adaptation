@@ -24,7 +24,7 @@ for isujet=nsujets:-1:1
     baselinecycles=find(not(isnan(meanABSError.baseline2(BASELINE2end(isujet)-49:BASELINE2end(isujet),isujet)))...
         & not(isnan(AnalTA.TA.baseline2(1,BASELINE2end(isujet)-49:BASELINE2end(isujet),isujet)))');
     baselinecycles=baselinecycles+BASELINE2end(isujet)-50;
-    baselinelateTA(:,isujet)=mean(AnalTA.TA.baseline2(:,baselinecycles,isujet),2);
+    baselinelateTA(:,isujet)=mean(AnalTA.TA.baseline2(:,baselgeinecycles,isujet),2);
     
     %% Get mean TA activity for the valid cycles during Fearly and late
     FFearlycycles=find(not(isnan(AnalTA.TA.CHAMP(1,2:11,isujet)))'...
