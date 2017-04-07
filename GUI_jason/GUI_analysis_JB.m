@@ -151,6 +151,8 @@ if ~isempty(RFLXFF)
 data.Cycle_Table = removebad_Superpose (data, Signal, RFLXFF)
 end
 
+clearvars -except data
+
 disp('Table_data saved')
 
 
