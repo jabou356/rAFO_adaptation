@@ -136,20 +136,7 @@ RFLX = find( data.Cycle_Table(:,4) == 1 & data.Cycle_Table(:,5) == 0);
 RFLXFF = find( data.Cycle_Table(:,4) == 1 & data.Cycle_Table(:,5) == 1);
 
 if ~isempty(CTLR)
-data.Cycle_Table = removebad_Superpose (data, Signal, CTRL)
-end
-
-if ~isempty(FF)
-data.Cycle_Table = removebad_Superpose (data, Signal, FF)
-end
-
-if ~isempty(RFLX)
-data.Cycle_Table = removebad_Superpose (data, Signal, RFLX)
-end
-
-if ~isempty(RFLXFF)
-data.Cycle_Table = removebad_Superpose (data, Signal, RFLXFF)
-end
+Cycle_Table = removebad_Superpose (data, Signal, Cycles)
 
 disp('Table_data saved')
 
