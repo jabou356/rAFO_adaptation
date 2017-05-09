@@ -66,9 +66,12 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
                 temp=find((data(500:end-1,j,i)<SyncThreshold(i))&(diff(data(500:end,j,i))<0));
                 if not(isempty(temp))
                     SyncTiming(i,j)=temp(1)+499;
-                    
+                else
+                    SyncTiming(i,j)=0;
                 end
                 
+            else
+                    SyncTiming(i,j)=0;
             end
             
         end
