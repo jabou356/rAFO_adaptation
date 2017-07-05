@@ -575,7 +575,15 @@ elseif side==3
     
 end
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn)
+useold=menu('Do you already have AnalTA file?','Yes','No');
+
+if useold==1
+    load([pn, 'AnalRBITA.mat']);
+else
+    AnalTA=[];
+end
+
+[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn,AnalTA)
 
 save([pn, 'AnalRBITA.mat'], 'AnalTA'); 
 

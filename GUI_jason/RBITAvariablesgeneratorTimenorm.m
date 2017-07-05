@@ -1,17 +1,25 @@
 
-function [AnalTA]= TAvariablesgenerator(Cycle_Table,data,path)
+function [AnalTA]= TAvariablesgenerator(Cycle_Table,data,path,AnalTA)
 %% Baseline 2 TA enligné %MODIFICATION 30% au lieur de 20% du swing lignes 15:17, 50, 71, 170, 263
-
+load([path, 'SyncData.mat']);
+load([path 'CyclesCritiques.mat']);
 n=find(isnan(Cycle_Table(1,1,:))==1);
+
 if n>0
     n=n(1)-1;
 else
     n=30
 end
 
-load([path, 'SyncData.mat']);
-load([path 'CyclesCritiques.mat']);
 
+
+if isfield(AnalTA,'TA')
+
+    x=find(sum(~isnan(AnalTA.TA.baseline2(1,:,:)),2)==0,1,'first');
+    
+else
+    
+x=1;
 AnalTA.TA.baseline2(1:1300,1:588,1:30)=nan;
 AnalTA.TA.CHAMP(1:1300,1:397,1:30)=nan;
 AnalTA.TA.POST(1:1300,1:290,1:30)=nan;
@@ -24,25 +32,6 @@ AnalTA.peakTA.baseline2(1:588,1:30)=nan;
 AnalTA.peakTA.CHAMP(1:397,1:30)=nan;
 AnalTA.peakTA.POST(1:290,1:30)=nan;
 
-% RMSburstTA.baseline2(1:588,1:30)=nan;
-% RMSburstTA.CHAMP(1:397,1:30)=nan;
-% RMSburstTA.POST(1:290,1:30)=nan;
-% 
-% normTAbefore.CHAMP(1:397,1:30)=nan;
-% normTAafter.CHAMP(1:397,1:30)=nan;
-% 
-% normRMSburstTA.baseline2(1:588,1:30)=nan;
-% normRMSburstTA.CHAMP(1:397,1:30)=nan;
-% normRMSburstTA.POST(1:290,1:30)=nan;
-% 
-% MEANburstTA.baseline2(1:588,1:30)=nan;
-% MEANburstTA.CHAMP(1:397,1:30)=nan;
-% MEANburstTA.POST(1:290,1:30)=nan;
-% 
-% normMEANburstTA.baseline2(1:588,1:30)=nan;
-% normMEANburstTA.CHAMP(1:397,1:30)=nan;
-% normMEANburstTA.POST(1:290,1:30)=nan;
-% 
 AnalTA.cycleID.baseline2(1:588,1:30)=nan;
 AnalTA.cycleID.CHAMP(1:397,1:30)=nan;
 AnalTA.cycleID.POST(1:290,1:30)=nan;
@@ -52,7 +41,10 @@ AnalTA.BASELINE2end(1:30)=nan;
 AnalTA.CHAMPend(1:30)=nan;
 AnalTA.POSTend(1:30)=nan;
 
-for i=1:n
+end
+
+
+for i=x:n
     
     k=0;
     
