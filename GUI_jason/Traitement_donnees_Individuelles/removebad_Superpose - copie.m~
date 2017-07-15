@@ -34,10 +34,10 @@ end %For
 for icycle=cycles
     
     subplot(numchan+1,1,numchan+1)
-    h(icycle,numchan+1)=plot(icycle,data.Cycle_Table(icycle,2)-data.Cycle_Table(i,1));
+    h(icycle,numchan+1)=plot(icycle,Cycle_Table(icycle,2)-Cycle_Table(i,1));
     hold on
     
-    set(h(i,numchan+1),'color','b','marker','o');
+    set(h(i,numchan2+1),'color','b','marker','o');
     
 end
 
@@ -54,11 +54,11 @@ while not(over)
     [bad,channel]=find(h==hz);
     
     if not(isempty(bad))
-        set(h(bad,1:numchan),'color','r','linewidth',2);
+        set(h(bad,1:numchan2),'color','r','linewidth',2);
         ylabel(bad);
-        set(h(bad,numchan+1),'color','r','marker','o')
+        set(h(bad,numchan2+1),'color','r','marker','o')
         
-        for i=1:numchan
+        for i=1:numchan2
             uistack(h(bad,i),'top')
         end
         
@@ -72,8 +72,8 @@ while not(over)
             
         else
             
-            set(h(bad,1:numchan),'color','b','linewidth',0.5);
-            set(h(bad,numchan+1),'color','b','marker','o')
+            set(h(bad,1:numchan2),'color','b','linewidth',0.5);
+            set(h(bad,numchan2+1),'color','b','marker','o')
         end %if
         
     else
