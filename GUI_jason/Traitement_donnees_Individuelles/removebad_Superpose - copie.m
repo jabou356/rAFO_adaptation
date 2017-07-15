@@ -1,5 +1,9 @@
 
-function data.Cycles_Table = removebad_Superpose( data, signal, cycles )
+function data.Cycles_Table = removebad_Superpose( data, signal, cycles, type, varargin )
+
+if strcmp(type, 'Group')
+    data.Table1=data;
+    data.Cycle_Table=GroupData.CycleTable(:,:,isubject);
 
 numchan=length(signal);
 dureecycle=size(data.Cycles_Table,2);
