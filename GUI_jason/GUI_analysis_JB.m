@@ -22,7 +22,7 @@ function varargout = GUI_analysis_JB(varargin)
 
 % Edit the above text to modify the response to help GUI_analysis_JB
 
-% Last Modified by GUIDE v2.5 09-Oct-2015 10:52:35
+% Last Modified by GUIDE v2.5 06-Apr-2017 19:54:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,170 +74,12 @@ varargout{1} = handles.output;
 
 
 % --------------------------------------------------------------------
-function Untitled_1_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Untitled_3_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Untitled_4_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Untitled_10_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
 function Combine_Group_Data_Callback(hObject, eventdata, handles)
 % hObject    handle to Combine_Group_Data (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 GroupTablesGeneratorJB
 disp('GroupData saved')
-
-
-% --------------------------------------------------------------------
-function Group_Ankle_Kinematic_Analysus_Callback(hObject, eventdata, handles)
-% hObject    handle to Group_Ankle_Kinematic_Analysus (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-choice=menu('Veux-tu travailler avec des données de groupe ou individuel','Groupe','Individuel');
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-
-%[ENCO, baseline2, cycleID, BASELINE2end, CHAMPend, POSTend,deltaENCO,MaxDorsiError, MaxPlantError, meanABSError, meanSIGNEDError, meanUndershoot,percentUndershoot meanOvershoot, percentOvershoot, dureeswing, peakDorsi, peakPlant, MaxDorsiErrortiming, MaxPlantErrortiming, peakDorsitiming, peakPlanttiming, dureecycle, Velocity, deltaVelocity, velocitybaseline2, peakDorsiVelocity, peakPlantVelocity,MaxDorsiErrorVelocity, MaxPlantErrorVelocity, meanABSErrorVelocity, meanSIGNEDErrorVelocity]=ENCOvariablesgenerator(GroupData.Cycle_Table,GroupData.ENCO);
-
-[ENCO, baseline2, cycleID, BASELINE2end, CHAMPend, POSTend,deltaENCO,MaxDorsiError, MaxPlantError, meanABSError, meanSIGNEDError, sumUndershoot1, sumUndershoot2 sumOvershoot1, sumOvershoot2, OVER1, OVER2, UNDER1, UNDER2, dureeswing, peakDorsi, peakPlant, MaxDorsiErrortiming, MaxPlantErrortiming, peakDorsitiming, peakPlanttiming, dureecycle, Velocity, deltaVelocity, velocitybaseline2, peakDorsiVelocity, peakPlantVelocity,MaxDorsiErrorVelocity, MaxPlantErrorVelocity, meanABSErrorVelocity, meanSIGNEDErrorVelocity, cyclesbaseline, meanABSbefore, meanABSafter, meanSIGNEDbefore, meanSIGNEDafter]=ENCOvariablesgeneratorv3(GroupData.Cycle_Table,GroupData.ENCO)
-clear GroupData
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO');
-%save(filename,'ENCO','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaENCO','MaxDorsiError','MaxPlantError','meanABSError','meanSIGNEDError','meanUndershoot','meanOvershoot', 'percentUndershoot', 'percentOvershoot','dureeswing', 'peakDorsi', 'peakPlant', 'MaxDorsiErrortiming', 'MaxPlantErrortiming', 'peakDorsitiming', 'peakPlanttiming', 'dureecycle','Velocity', 'deltaVelocity', 'velocitybaseline2', 'peakDorsiVelocity', 'peakPlantVelocity','MaxDorsiErrorVelocity', 'MaxPlantErrorVelocity', 'meanABSErrorVelocity', 'meanSIGNEDErrorVelocity'); 
-save(filename,'ENCO','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaENCO','MaxDorsiError','MaxPlantError','meanABSError','meanSIGNEDError','sumUndershoot1','sumUndershoot2', 'sumOvershoot1', 'sumOvershoot2', 'OVER1', 'OVER2', 'UNDER1', 'UNDER2', 'dureeswing', 'peakDorsi', 'peakPlant', 'MaxDorsiErrortiming', 'MaxPlantErrortiming', 'peakDorsitiming', 'peakPlanttiming', 'dureecycle','Velocity', 'deltaVelocity', 'velocitybaseline2', 'peakDorsiVelocity', 'peakPlantVelocity','MaxDorsiErrorVelocity', 'MaxPlantErrorVelocity', 'meanABSErrorVelocity', 'meanSIGNEDErrorVelocity', 'cyclesbaseline', 'meanABSbefore', 'meanABSafter', 'meanSIGNEDbefore', 'meanSIGNEDafter'); 
-
-
-disp('AnalENCO saved')
-
-
-
-
-% --------------------------------------------------------------------
-function TA_Analysis_group_Callback(hObject, eventdata, handles)
-% hObject    handle to TA_Analysis_group (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-choice=menu('Veux-tu travailler avec des données de groupe ou individuel','Groupe','Individuel');
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-side=menu('Do you want to Analyse right or left TA?','Right','Left');
-if side==1
-    data=abs(GroupData.RTA);
-    
-elseif side==2
-    
-    data=abs(GroupData.LTA);
-    
-end
-
-[TA, baseline2, cycleID, CHAMPend, BASELINE2end, POSTend, RMSburstTA, normRMSburstTA, MEANburstTA, normMEANburstTA, dureeswing, normTAbefore, normTAafter, debutbouffee, finbouffee, peakTA]= TAvariablesgeneratorv2(GroupData.Cycle_Table,data)
-
-clear GroupData
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalTA');
-save(filename,'TA','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','RMSburstTA','MEANburstTA', 'normRMSburstTA', 'normMEANburstTA', 'dureeswing', 'normTAbefore', 'normTAafter', 'debutbouffee', 'finbouffee', 'peakTA'); 
-
-disp('AnalTA saved')
-
-
-
-% --------------------------------------------------------------------
-function group_couple_analysis_Callback(hObject, eventdata, handles)
-% hObject    handle to group_couple_analysis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-choice=menu('Veux-tu travailler avec des données de groupe ou individuel','Groupe','Individuel');
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-[COUPLE, baseline2, cycleID, BASELINE2end, CHAMPend, POSTend,deltaCOUPLE,meanabsCOUPLE, PeakCOUPLE]=COUPLEvariablesgenerator(GroupData.Cycle_Table,GroupData.COUPLE)
-
-clear GroupData
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalTA');
-save(filename,'COUPLE','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaCOUPLE','meanabsCOUPLE', 'PeakCOUPLE'); 
-
-
-% --------------------------------------------------------------------
-function Ankle_Kinematic_Analysis_Callback(hObject, eventdata, handles)
-% hObject    handle to Ankle_Kinematic_Analysis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function TA_EMG_Analysis_Callback(hObject, eventdata, handles)
-% hObject    handle to TA_EMG_Analysis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Couple_Analysis_Callback(hObject, eventdata, handles)
-% hObject    handle to Couple_Analysis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Untiled_Callback(hObject, eventdata, handles)
-% hObject    handle to Untiled (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
-
-
-% --------------------------------------------------------------------
-function Prepare_Table_Callback(hObject, eventdata, handles)
-% hObject    handle to Prepare_Table (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function blabla_Callback(hObject, eventdata, handles)
-% hObject    handle to blabla (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Synchronisation_Pushoff_Callback(hObject, eventdata, handles)
-% hObject    handle to Synchronisation_Pushoff (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 
 % --------------------------------------------------------------------
 function convert_raw_to_mat_Callback(hObject, eventdata, handles)
@@ -250,14 +92,6 @@ disp('file *.mat saved')
 
 
 % --------------------------------------------------------------------
-function Quit_Callback(hObject, eventdata, handles)
-% hObject    handle to Quit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-close
-
-
-% --------------------------------------------------------------------
 function Cut_Table_Lokomath_Callback(hObject, eventdata, handles)
 % hObject    handle to Cut_Table_Lokomath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -265,13 +99,6 @@ function Cut_Table_Lokomath_Callback(hObject, eventdata, handles)
 
 cutTable_Lokomath
 disp('Table_data saved')
-
-
-% --------------------------------------------------------------------
-function Cut_Table_LB_Callback(hObject, eventdata, handles)
-% hObject    handle to Cut_Table_LB (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
@@ -299,25 +126,34 @@ function Remove_bad_superpose_Callback(hObject, eventdata, handles)
 % hObject    handle to Remove_bad_superpose (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-removebad_Superpose
+data = load('Table_data.mat');
+
+Signal = input(['Which signals would you like to show for validation?{''Sig1'',''Sig2'',''etc''}');
+
+CTRL = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 0);
+FF = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 1);
+RFLX = find( data.Cycle_Table(:,4) == 1 & data.Cycle_Table(:,5) == 0);
+RFLXFF = find( data.Cycle_Table(:,4) == 1 & data.Cycle_Table(:,5) == 1);
+
+if ~isempty(CTLR)
+data.Cycle_Table = removebad_Superpose (data, Signal, CTRL)
+end
+
+if ~isempty(FF)
+data.Cycle_Table = removebad_Superpose (data, Signal, FF)
+end
+
+if ~isempty(RFLX)
+data.Cycle_Table = removebad_Superpose (data, Signal, RFLX)
+end
+
+if ~isempty(RFLXFF)
+data.Cycle_Table = removebad_Superpose (data, Signal, RFLXFF)
+end
+
+clearvars -except data
+
 disp('Table_data saved')
-
-
-% --------------------------------------------------------------------
-function Untitled_13_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Open_file_Callback(hObject, eventdata, handles)
-% hObject    handle to Open_file (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-[fn,pn]=uigetfile('*.*','select a data file');
-load([pn,fn],'-mat');
-disp('file loaded')
 
 
 % --------------------------------------------------------------------
@@ -326,57 +162,6 @@ function Close_files_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 clear all
-
-
-% --------------------------------------------------------------------
-function Untitled_16_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_16 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Untitled_18_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_18 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function SWDM_norm_Callback(hObject, eventdata, handles)
-% hObject    handle to SWDM_norm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function FilterButter_Callback(hObject, eventdata, handles)
-% hObject    handle to FilterButter (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function Filter_RBI_Callback(hObject, eventdata, handles)
-% hObject    handle to Filter_RBI (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-Filter_RBI
-disp('filtered data saved')
-
-
-% --------------------------------------------------------------------
-function MMax_Filter_Callback(hObject, eventdata, handles)
-% hObject    handle to MMax_Filter (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function iMVC_filter_Callback(hObject, eventdata, handles)
-% hObject    handle to iMVC_filter (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 
 % --------------------------------------------------------------------
@@ -491,8 +276,8 @@ save(filename,'GroupData');
 
 
 % --------------------------------------------------------------------
-function TimeNorm_Callback(hObject, eventdata, handles)
-% hObject    handle to TimeNorm (see GCBO)
+function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
+% hObject    handle to GroupData_TimeNorm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
