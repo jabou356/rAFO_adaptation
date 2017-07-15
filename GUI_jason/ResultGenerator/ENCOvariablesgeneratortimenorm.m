@@ -83,354 +83,355 @@ elseif question==1
     x=temp(1);
 end
 
-for i=x:n
-    i
+for isubject=x:n
+    isubject
     k=0;
     
-    for j=1:FF1(i)-1
+    for itrial=1:FF1(isubject)-1
         k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & Cycle_Table(4,j,i)==0 & SyncTiming(i,j)>500
+        if Cycle_Table(3,itrial,isubject)==1 & SyncTiming(isubject,itrial)<1000 & Cycle_Table(4,itrial,isubject)==0 & SyncTiming(isubject,itrial)>500
             
-            stop=find(isnan(data(:,j,i))==1);
+            stop=find(isnan(data(:,itrial,isubject))==1);
             if stop>0;
             stop=stop(1)-1;
             
-            ENCO.baseline2(:,k,i)=interp1(1:(stop-SyncTiming(i,j)+1),data(SyncTiming(i,j):stop,j,i),1:(stop-SyncTiming(i,j))/(999):(stop-SyncTiming(i,j)+1));
+            ENCO.baseline2(:,k,isubject)=interp1(1:(stop-SyncTiming(isubject,itrial)+1),data(SyncTiming(isubject,itrial):stop,itrial,isubject),1:(stop-SyncTiming(isubject,itrial))/(999):(stop-SyncTiming(isubject,itrial)+1));
                 
-            dureeswing.baseline2(k,i)=stop-SyncTiming(i,j)+1;
+            dureeswing.baseline2(k,isubject)=stop-SyncTiming(isubject,itrial)+1;
             
             else 
                               
-            ENCO.baseline2(:,k,i)=nan;            
-            dureeswing.baseline2(k,i)=nan;
+            ENCO.baseline2(:,k,isubject)=nan;            
+            dureeswing.baseline2(k,isubject)=nan;
             
             end
            
         else
-            ENCO.baseline2(:,k,i)=nan;            
-            dureeswing.baseline2(k,i)=nan;
+            ENCO.baseline2(:,k,isubject)=nan;            
+            dureeswing.baseline2(k,isubject)=nan;
         end
-        cycleID.baseline2(k,i)=j;
+        cycleID.baseline2(k,isubject)=j;
         
         
     end
-    BASELINE2end(i)=k;
-    
-    clear h bad_cycles
-    figure(1)
-    clf
-    subplot(2,1,1)
-    for j=1:BASELINE2end(i)
-    h(j,1)=plot(ENCO.baseline2(:,j,i));
-    hold on
-    end
-    set(h(j,1),'color','b')
-       
-    subplot(2,1,2)
-    for j=1:BASELINE2end(i)
-        s=['plot(j,dureeswing.baseline2(j,i))'];
-        h(j,2)=eval(s);
-        hold on
-        set(h(j,2),'color','b','marker','o');
-    end 
-    
-    xlabel('click in the white space when finished');
-    
-    bad_cycles=[];
-    count=0;
-    over=0;
-    
-    while not(over)
-        
-        waitforbuttonpress;
-        hz=gco;
-        [bad,channel]=find(h==hz);
-        
-        if not(isempty(bad))
-            set(h(bad,1),'color','r','linewidth',2);
-            ylabel(bad);
-            set(h(bad,2),'color','r','marker','o')
-                        
-           for k=1:2
-            uistack(h(bad,k),'top')
-           end
-            
-            
-            confirmation=menu('Non valide?','oui','non');
-            
-            switch confirmation
-                case confirmation==1
-                    
-                    delete(h(bad,:))
-                    count=count+1;
-                    bad_cycles(count)=bad;
-                    
-                otherwise
-                    
-                    set(h(bad,1),'color','b','linewidth',0.5);
-                    set(h(bad,2),'color','b','marker','o')
-                    
-            end %SWITCH
-            
-        else
-            over=1;
-        end; %if
-    end; %while
-        
-Cycle_Table(3,cycleID.baseline2(bad_cycles,i),i)=-1;
- ENCO.baseline2(:,bad_cycles,i)=nan;
+    BASELINE2end(isubject)=k;
 
-temp=find(Cycle_Table(3,BASELINE2end(i)-49:BASELINE2end(i),i)==1);
+    GroupData.Cycle_Table(:,:,isubject)=removebad_Superpose(ENCO.baseline2(:,:,isubject),signal,cycles, 'Group', GroupData, isubject);
+%     clear h bad_cycles
+%     figure(1)
+%     clf
+%     subplot(2,1,1)
+%     for j=1:BASELINE2end(i)
+%     h(j,1)=plot(ENCO.baseline2(:,j,i));
+%     hold on
+%     end
+%     set(h(j,1),'color','b')
+%        
+%     subplot(2,1,2)
+%     for j=1:BASELINE2end(i)
+%         s=['plot(j,dureeswing.baseline2(j,i))'];
+%         h(j,2)=eval(s);
+%         hold on
+%         set(h(j,2),'color','b','marker','o');
+%     end 
+%     
+%     xlabel('click in the white space when finished');
+%     
+%     bad_cycles=[];
+%     count=0;
+%     over=0;
+%     
+%     while not(over)
+%         
+%         waitforbuttonpress;
+%         hz=gco;
+%         [bad,channel]=find(h==hz);
+%         
+%         if not(isempty(bad))
+%             set(h(bad,1),'color','r','linewidth',2);
+%             ylabel(bad);
+%             set(h(bad,2),'color','r','marker','o')
+%                         
+%            for k=1:2
+%             uistack(h(bad,k),'top')
+%            end
+%             
+%             
+%             confirmation=menu('Non valide?','oui','non');
+%             
+%             switch confirmation
+%                 case confirmation==1
+%                     
+%                     delete(h(bad,:))
+%                     count=count+1;
+%                     bad_cycles(count)=bad;
+%                     
+%                 otherwise
+%                     
+%                     set(h(bad,1),'color','b','linewidth',0.5);
+%                     set(h(bad,2),'color','b','marker','o')
+%                     
+%             end %SWITCH
+%             
+%         else
+%             over=1;
+%         end; %if
+%     end; %while
+%         
+% Cycle_Table(3,cycleID.baseline2(bad_cycles,i),i)=-1;
+ ENCO.baseline2(:,bad_cycles,isubject)=nan;
+
+temp=find(Cycle_Table(3,BASELINE2end(isubject)-49:BASELINE2end(isubject),isubject)==1);
 countbase=length(temp);
 
-    baseline2(:,i)=mean(ENCO.baseline2(:,temp+BASELINE2end(i)-50,i),2); %
+    baseline2(:,isubject)=mean(ENCO.baseline2(:,temp+BASELINE2end(isubject)-50,isubject),2); %
 %    velocitybaseline2(:,i)=mean(Velocity.baseline2(:,temp+BASELINE2end(i)-50,i),2);
     clear temp
     
 k=0;    
-for j=FF1(i):POST1(i)-1
+for itrial=FF1(isubject):POST1(isubject)-1
         k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & Cycle_Table(4,j,i)==0 & SyncTiming(i,j)>500
+        if Cycle_Table(3,itrial,isubject)==1 & SyncTiming(isubject,itrial)<1000 & Cycle_Table(4,itrial,isubject)==0 & SyncTiming(isubject,itrial)>500
             
-            stop=find(isnan(data(:,j,i))==1);
+            stop=find(isnan(data(:,itrial,isubject))==1);
             if stop>0;
             stop=stop(1)-1;
             
-            ENCO.CHAMP(:,k,i)=interp1(1:(stop-SyncTiming(i,j)+1),data(SyncTiming(i,j):stop,j,i),1:(stop-SyncTiming(i,j))/(999):(stop-SyncTiming(i,j)+1));
+            ENCO.CHAMP(:,k,isubject)=interp1(1:(stop-SyncTiming(isubject,itrial)+1),data(SyncTiming(isubject,itrial):stop,itrial,isubject),1:(stop-SyncTiming(isubject,itrial))/(999):(stop-SyncTiming(isubject,itrial)+1));
                 
-            dureeswing.CHAMP(k,i)=stop-SyncTiming(i,j)+1;
+            dureeswing.CHAMP(k,isubject)=stop-SyncTiming(isubject,itrial)+1;
             
             else 
                               
-            ENCO.CHAMP(:,k,i)=nan;            
-            dureeswing.CHAMP(k,i)=nan;
+            ENCO.CHAMP(:,k,isubject)=nan;            
+            dureeswing.CHAMP(k,isubject)=nan;
             
             end
            
         else
-            ENCO.CHAMP(:,k,i)=nan;            
-            dureeswing.CHAMP(k,i)=nan;
+            ENCO.CHAMP(:,k,isubject)=nan;            
+            dureeswing.CHAMP(k,isubject)=nan;
         end
-        cycleID.CHAMP(k,i)=j;
+        cycleID.CHAMP(k,isubject)=j;
         
         
     end
-    CHAMPend(i)=k;
-
-  clear h bad_cycles
-    figure(1)
-    clf
-    subplot(2,1,1)
-    for j=1:CHAMPend(i)
-    h(j,1)=plot(ENCO.CHAMP(:,j,i));
-    hold on
-    end
-    set(h(j,1),'color','b')
-       
-    subplot(2,1,2)
-    for j=1:CHAMPend(i)
-        s=['plot(j,dureeswing.CHAMP(j,i))'];
-        h(j,2)=eval(s);
-        hold on
-        set(h(j,2),'color','b','marker','o');
-    end 
-    
-    xlabel('click in the white space when finished');
-    
-    bad_cycles=[];
-    count=0;
-    over=0;
-    
-    while not(over)
-        
-        waitforbuttonpress;
-        hz=gco;
-        [bad,channel]=find(h==hz);
-        
-        if not(isempty(bad))
-            set(h(bad,1),'color','r','linewidth',2);
-            ylabel(bad);
-            set(h(bad,2),'color','r','marker','o')
-                        
-           for k=1:2
-            uistack(h(bad,k),'top')
-           end
-            
-            
-            confirmation=menu('Non valide?','oui','non');
-            
-            switch confirmation
-                case confirmation==1
-                    
-                    delete(h(bad,:))
-                    count=count+1;
-                    bad_cycles(count)=bad;
-                    
-                otherwise
-                    
-                    set(h(bad,1),'color','b','linewidth',0.5);
-                    set(h(bad,2),'color','b','marker','o')
-                    
-            end %SWITCH
-            
-        else
-            over=1;
-        end; %if
-    end; %while
-    
-    Cycle_Table(3,cycleID.CHAMP(bad_cycles,i),i)=-1;
-    ENCO.CHAMP(:,bad_cycles,i)=nan;
+    CHAMPend(isubject)=k;
+% 
+%   clear h bad_cycles
+%     figure(1)
+%     clf
+%     subplot(2,1,1)
+%     for j=1:CHAMPend(i)
+%     h(j,1)=plot(ENCO.CHAMP(:,j,i));
+%     hold on
+%     end
+%     set(h(j,1),'color','b')
+%        
+%     subplot(2,1,2)
+%     for j=1:CHAMPend(i)
+%         s=['plot(j,dureeswing.CHAMP(j,i))'];
+%         h(j,2)=eval(s);
+%         hold on
+%         set(h(j,2),'color','b','marker','o');
+%     end 
+%     
+%     xlabel('click in the white space when finished');
+%     
+%     bad_cycles=[];
+%     count=0;
+%     over=0;
+%     
+%     while not(over)
+%         
+%         waitforbuttonpress;
+%         hz=gco;
+%         [bad,channel]=find(h==hz);
+%         
+%         if not(isempty(bad))
+%             set(h(bad,1),'color','r','linewidth',2);
+%             ylabel(bad);
+%             set(h(bad,2),'color','r','marker','o')
+%                         
+%            for k=1:2
+%             uistack(h(bad,k),'top')
+%            end
+%             
+%             
+%             confirmation=menu('Non valide?','oui','non');
+%             
+%             switch confirmation
+%                 case confirmation==1
+%                     
+%                     delete(h(bad,:))
+%                     count=count+1;
+%                     bad_cycles(count)=bad;
+%                     
+%                 otherwise
+%                     
+%                     set(h(bad,1),'color','b','linewidth',0.5);
+%                     set(h(bad,2),'color','b','marker','o')
+%                     
+%             end %SWITCH
+%             
+%         else
+%             over=1;
+%         end; %if
+%     end; %while
+%     
+%     Cycle_Table(3,cycleID.CHAMP(bad_cycles,i),i)=-1;
+    ENCO.CHAMP(:,bad_cycles,isubject)=nan;
     
 k=0;
 
-if fin(i)-POST1(i)>1;
-for j=POST1(i):fin(i)-1
+if fin(isubject)-POST1(isubject)>1;
+for itrial=POST1(isubject):fin(isubject)-1
         k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & Cycle_Table(4,j,i)==0 & SyncTiming(i,j)>500
+        if Cycle_Table(3,itrial,isubject)==1 & SyncTiming(isubject,itrial)<1000 & Cycle_Table(4,itrial,isubject)==0 & SyncTiming(isubject,itrial)>500
             
-            stop=find(isnan(data(:,j,i))==1);
+            stop=find(isnan(data(:,itrial,isubject))==1);
             if stop>0;
             stop=stop(1)-1;
             
-            ENCO.POST(:,k,i)=interp1(1:(stop-SyncTiming(i,j)+1),data(SyncTiming(i,j):stop,j,i),1:(stop-SyncTiming(i,j))/(999):(stop-SyncTiming(i,j)+1));
+            ENCO.POST(:,k,isubject)=interp1(1:(stop-SyncTiming(isubject,itrial)+1),data(SyncTiming(isubject,itrial):stop,itrial,isubject),1:(stop-SyncTiming(isubject,itrial))/(999):(stop-SyncTiming(isubject,itrial)+1));
                 
-            dureeswing.POST(k,i)=stop-SyncTiming(i,j)+1;
+            dureeswing.POST(k,isubject)=stop-SyncTiming(isubject,itrial)+1;
             
             else 
                               
-            ENCO.POST(:,k,i)=nan;            
-            dureeswing.POST(k,i)=nan;
+            ENCO.POST(:,k,isubject)=nan;            
+            dureeswing.POST(k,isubject)=nan;
             
             end
            
         else
-            ENCO.POST(:,k,i)=nan;            
-            dureeswing.POST(k,i)=nan;
+            ENCO.POST(:,k,isubject)=nan;            
+            dureeswing.POST(k,isubject)=nan;
         end
-        cycleID.POST(k,i)=j;
+        cycleID.POST(k,isubject)=j;
         
         
     end
-    POSTend(i)=k;
+    POSTend(isubject)=k;
     
-     clear h bad_cycles
-    figure(1)
-    clf
-    subplot(2,1,1)
-    for j=1:POSTend(i)
-    h(j,1)=plot(ENCO.POST(:,j,i));
-    hold on
-    end
-    set(h(j,1),'color','b')
-       
-    subplot(2,1,2)
-    for j=1:POSTend(i)
-        s=['plot(j,dureeswing.POST(j,i))'];
-        h(j,2)=eval(s);
-        hold on
-        set(h(j,2),'color','b','marker','o');
-    end 
-    
-    xlabel('click in the white space when finished');
-    
-    bad_cycles=[];
-    count=0;
-    over=0;
-    
-    while not(over)
-        
-        waitforbuttonpress;
-        hz=gco;
-        [bad,channel]=find(h==hz);
-        
-        if not(isempty(bad))
-            set(h(bad,1),'color','r','linewidth',2);
-            ylabel(bad);
-            set(h(bad,2),'color','r','marker','o')
-                        
-           for k=1:2
-            uistack(h(bad,k),'top')
-           end
-            
-            
-            confirmation=menu('Non valide?','oui','non');
-            
-            switch confirmation
-                case confirmation==1
-                    
-                    delete(h(bad,:))
-                    count=count+1;
-                    bad_cycles(count)=bad;
-                    
-                otherwise
-                    
-                    set(h(bad,1),'color','b','linewidth',0.5);
-                    set(h(bad,2),'color','b','marker','o')
-                    
-            end %SWITCH
-            
-        else
-            over=1;
-        end; %if
-    end; %while
-    
-    Cycle_Table(3,cycleID.POST(bad_cycles,i),i)=-1;
-    ENCO.POST(:,bad_cycles,i)=nan;
+%      clear h bad_cycles
+%     figure(1)
+%     clf
+%     subplot(2,1,1)
+%     for j=1:POSTend(isubject)
+%     h(j,1)=plot(ENCO.POST(:,j,isubject));
+%     hold on
+%     end
+%     set(h(j,1),'color','b')
+%        
+%     subplot(2,1,2)
+%     for j=1:POSTend()
+%         s=['plot(j,dureeswing.POST(j,i))'];
+%         h(j,2)=eval(s);
+%         hold on
+%         set(h(j,2),'color','b','marker','o');
+%     end 
+%     
+%     xlabel('click in the white space when finished');
+%     
+%     bad_cycles=[];
+%     count=0;
+%     over=0;
+%     
+%     while not(over)
+%         
+%         waitforbuttonpress;
+%         hz=gco;
+%         [bad,channel]=find(h==hz);
+%         
+%         if not(isempty(bad))
+%             set(h(bad,1),'color','r','linewidth',2);
+%             ylabel(bad);
+%             set(h(bad,2),'color','r','marker','o')
+%                         
+%            for k=1:2
+%             uistack(h(bad,k),'top')
+%            end
+%             
+%             
+%             confirmation=menu('Non valide?','oui','non');
+%             
+%             switch confirmation
+%                 case confirmation==1
+%                     
+%                     delete(h(bad,:))
+%                     count=count+1;
+%                     bad_cycles(count)=bad;
+%                     
+%                 otherwise
+%                     
+%                     set(h(bad,1),'color','b','linewidth',0.5);
+%                     set(h(bad,2),'color','b','marker','o')
+%                     
+%             end %SWITCH
+%             
+%         else
+%             over=1;
+%         end; %if
+%     end; %while
+%     
+%     Cycle_Table(3,cycleID.POST(bad_cycles,i),i)=-1;
+    ENCO.POST(:,bad_cycles,isubject)=nan;
     end
 end
 
 
 clear data GroupData Cycle_Table
-for i=x:n
+for isubject=x:n
     
-    for j=1:size(ENCO.baseline2(:,:,i),2)
+    for itrial=1:size(ENCO.baseline2(:,:,isubject),2)
         
-        deltaENCO.baseline2(:,j,i)=ENCO.baseline2(:,j,i)-baseline2(:,i);
+        deltaENCO.baseline2(:,itrial,isubject)=ENCO.baseline2(:,itrial,isubject)-baseline2(:,isubject);
         
     
-    meanABSError.baseline2(j,i)=mean(abs(deltaENCO.baseline2(:,j,i)));
+    meanABSError.baseline2(itrial,isubject)=mean(abs(deltaENCO.baseline2(:,itrial,isubject)));
        
     end
     
     
-novalid=find(isnan(meanABSError.baseline2(BASELINE2end(i)-49:BASELINE2end(i),i))==1);
+novalid=find(isnan(meanABSError.baseline2(BASELINE2end(isubject)-49:BASELINE2end(isubject),isubject))==1);
 if length(novalid)>5
-    menu([num2str(i),'>10% baseline no valid'],'ok je vais aller voir ses données')
-    temp=find(isnan(meanABSError.baseline2(BASELINE2end(i)-49:BASELINE2end(i),i))==0);
-    cyclesbaseline(1:length(temp),i)=temp+BASELINE2end(i)-50;
-    baseline2(:,i)=mean(ENCO.baseline2(:,cyclesbaseline(1:length(temp),i),i),2);
+    menu([num2str(isubject),'>10% baseline no valid'],'ok je vais aller voir ses données')
+    temp=find(isnan(meanABSError.baseline2(BASELINE2end(isubject)-49:BASELINE2end(isubject),isubject))==0);
+    cyclesbaseline(1:length(temp),isubject)=temp+BASELINE2end(isubject)-50;
+    baseline2(:,isubject)=mean(ENCO.baseline2(:,cyclesbaseline(1:length(temp),isubject),isubject),2);
 else
-    temp=sort(meanABSError.baseline2(BASELINE2end(i)-49:BASELINE2end(i),i));
+    temp=sort(meanABSError.baseline2(BASELINE2end(isubject)-49:BASELINE2end(isubject),isubject));
     for k=1:45
-    temp2=find(meanABSError.baseline2(BASELINE2end(i)-49:BASELINE2end(i),i)==temp(k));
-    cyclesbaseline(k,i)=temp2+BASELINE2end(i)-50;
+    temp2=find(meanABSError.baseline2(BASELINE2end(isubject)-49:BASELINE2end(isubject),isubject)==temp(k));
+    cyclesbaseline(k,isubject)=temp2+BASELINE2end(isubject)-50;
     end
-    baseline2(:,i)=mean(ENCO.baseline2(:,cyclesbaseline(:,i),i),2);
+    baseline2(:,isubject)=mean(ENCO.baseline2(:,cyclesbaseline(:,isubject),isubject),2);
     %velocitybaseline2(:,i)=mean(Velocity.baseline2(:,cyclesbaseline(:,i),i),2);
 end
 
 end
 
 
-for i=x:n
+for isubject=x:n
     
-    for j=1:size(ENCO.baseline2(:,:,i),2)
+    for itrial=1:size(ENCO.baseline2(:,:,isubject),2)
         
-        deltaENCO.baseline2(:,j,i)=ENCO.baseline2(:,j,i)-baseline2(:,i);
+        deltaENCO.baseline2(:,itrial,isubject)=ENCO.baseline2(:,itrial,isubject)-baseline2(:,isubject);
     end
     
-    for j=1:size(ENCO.CHAMP(:,:,i),2)
-        deltaENCO.CHAMP(:,j,i)=ENCO.CHAMP(:,j,i)-baseline2(:,i);
+    for itrial=1:size(ENCO.CHAMP(:,:,isubject),2)
+        deltaENCO.CHAMP(:,itrial,isubject)=ENCO.CHAMP(:,itrial,isubject)-baseline2(:,isubject);
     end
     
-    if fin(i)-POST1(i)>1;
-    for j=1:size(ENCO.POST(:,:,i),2)
-        deltaENCO.POST(:,j,i)=ENCO.POST(:,j,i)-baseline2(:,i);
+    if fin(isubject)-POST1(isubject)>1;
+    for itrial=1:size(ENCO.POST(:,:,isubject),2)
+        deltaENCO.POST(:,itrial,isubject)=ENCO.POST(:,itrial,isubject)-baseline2(:,isubject);
     end
     end
 end
  
-for i=x:n
+for isubject=x:n
 %     clf
 %     plot(ENCO.CHAMP(:,:,i),'r')
 %     hold on
@@ -443,30 +444,30 @@ for i=x:n
 %     fin(i)=round(temp(1));
     
        
-    for j=1:BASELINE2end(i)
+    for itrial=1:BASELINE2end(isubject)
         
-        if isnan(deltaENCO.baseline2(1,j,i))==0
+        if isnan(deltaENCO.baseline2(1,itrial,isubject))==0
             
             
-            MaxDorsiError.baseline2(j,i)=max(deltaENCO.baseline2(1:1000,j,i));
-            MaxPlantError.baseline2(j,i)=min(deltaENCO.baseline2(:,j,i));
-            peakDorsi.baseline2(j,i)=max(ENCO.baseline2(200:1000,j,i));
-            peakPlant.baseline2(j,i)=min(ENCO.baseline2(1:600,j,i));
+            MaxDorsiError.baseline2(itrial,isubject)=max(deltaENCO.baseline2(1:1000,itrial,isubject));
+            MaxPlantError.baseline2(itrial,isubject)=min(deltaENCO.baseline2(:,itrial,isubject));
+            peakDorsi.baseline2(itrial,isubject)=max(ENCO.baseline2(200:1000,itrial,isubject));
+            peakPlant.baseline2(itrial,isubject)=min(ENCO.baseline2(1:600,itrial,isubject));
             
-            temp=find(deltaENCO.baseline2(:,j,i)==min(deltaENCO.baseline2(:,j,i)));
-            MaxPlantErrortiming.baseline2(j,i)=temp(1);
+            temp=find(deltaENCO.baseline2(:,itrial,isubject)==min(deltaENCO.baseline2(:,itrial,isubject)));
+            MaxPlantErrortiming.baseline2(itrial,isubject)=temp(1);
             
-            temp=find(deltaENCO.baseline2(1:1000,j,i)==max(deltaENCO.baseline2(1:1000,j,i)));
-            MaxDorisErrortiming.baseline2(j,i)=temp(1);
+            temp=find(deltaENCO.baseline2(1:1000,itrial,isubject)==max(deltaENCO.baseline2(1:1000,itrial,isubject)));
+            MaxDorisErrortiming.baseline2(itrial,isubject)=temp(1);
             
-            temp=find(ENCO.baseline2(200:1000,j,i)==max(ENCO.baseline2(200:1000,j,i)));
-            peakDorsitiming.baseline2(j,i)=temp(1)+199;
+            temp=find(ENCO.baseline2(200:1000,itrial,isubject)==max(ENCO.baseline2(200:1000,itrial,isubject)));
+            peakDorsitiming.baseline2(itrial,isubject)=temp(1)+199;
             
-            temp=find(ENCO.baseline2(1:600,j,i)==min(ENCO.baseline2(1:600,j,i)));
-            peakPlanttiming.baseline2(j,i)=temp(1);
+            temp=find(ENCO.baseline2(1:600,itrial,isubject)==min(ENCO.baseline2(1:600,itrial,isubject)));
+            peakPlanttiming.baseline2(itrial,isubject)=temp(1);
             
-            meanABSError.baseline2(j,i)=mean(abs(deltaENCO.baseline2(:,j,i)));
-            meanSIGNEDError.baseline2(j,i)=mean(deltaENCO.baseline2(:,j,i));
+            meanABSError.baseline2(itrial,isubject)=mean(abs(deltaENCO.baseline2(:,itrial,isubject)));
+            meanSIGNEDError.baseline2(itrial,isubject)=mean(deltaENCO.baseline2(:,itrial,isubject));
             
             % Determine what is overshoot AND what is undershoot
             u=0;
@@ -475,11 +476,11 @@ for i=x:n
             tempOVER=[];
             
             for k=1:1000
-                if deltaENCO.baseline2(k,j,i)<0;
+                if deltaENCO.baseline2(k,itrial,isubject)<0;
                     u=u+1;
                     tempUNDER(u)=k;
                     
-                elseif deltaENCO.baseline2(k,j,i)>0;
+                elseif deltaENCO.baseline2(k,itrial,isubject)>0;
                     o=o+1;
                     tempOVER(o)=k;
                 end
@@ -487,19 +488,19 @@ for i=x:n
             end
             
             if length(tempUNDER)>0
-                meanUndershoot.baseline2(j,i)=sum(abs(deltaENCO.baseline2(tempUNDER,j,i)))/(1000);
+                meanUndershoot.baseline2(itrial,isubject)=sum(abs(deltaENCO.baseline2(tempUNDER,itrial,isubject)))/(1000);
             else
-                meanUndershoot.baseline2(j,i)=0;
+                meanUndershoot.baseline2(itrial,isubject)=0;
             end
             
             if length(tempOVER)>0
-                meanOvershoot.baseline2(j,i)=sum(abs(deltaENCO.baseline2(tempOVER,j,i)))/(1000);
+                meanOvershoot.baseline2(itrial,isubject)=sum(abs(deltaENCO.baseline2(tempOVER,itrial,isubject)))/(1000);
             else
-                meanOvershoot.baseline2(j,i)=0;
+                meanOvershoot.baseline2(itrial,isubject)=0;
             end
             
-            percentOvershoot.baseline2(j,i)=meanOvershoot.baseline2(j,i)/meanABSError.baseline2(j,i)*100;
-            percentUndershoot.baseline2(j,i)=meanUndershoot.baseline2(j,i)/meanABSError.baseline2(j,i)*100;
+            percentOvershoot.baseline2(itrial,isubject)=meanOvershoot.baseline2(itrial,isubject)/meanABSError.baseline2(itrial,isubject)*100;
+            percentUndershoot.baseline2(itrial,isubject)=meanUndershoot.baseline2(itrial,isubject)/meanABSError.baseline2(itrial,isubject)*100;
             
             
             tempUNDER=[];
@@ -510,36 +511,36 @@ for i=x:n
     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHAMP
-    for j=1:CHAMPend(i)
+    for itrial=1:CHAMPend(isubject)
         
-        if isnan(deltaENCO.CHAMP(1,j,i))==0
+        if isnan(deltaENCO.CHAMP(1,itrial,isubject))==0
             
-            MaxPlantError.CHAMP(j,i)=min(deltaENCO.CHAMP(:,j,i));
-            peakDorsi.CHAMP(j,i)=max(ENCO.CHAMP(200:1000,j,i));
-            peakPlant.CHAMP(j,i)=min(ENCO.CHAMP(1:600,j,i));
+            MaxPlantError.CHAMP(itrial,isubject)=min(deltaENCO.CHAMP(:,itrial,isubject));
+            peakDorsi.CHAMP(itrial,isubject)=max(ENCO.CHAMP(200:1000,itrial,isubject));
+            peakPlant.CHAMP(itrial,isubject)=min(ENCO.CHAMP(1:600,itrial,isubject));
             
-            temp=find(deltaENCO.CHAMP(:,j,i)==min(deltaENCO.CHAMP(:,j,i)));
-            MaxPlantErrortiming.CHAMP(j,i)=temp(1);
+            temp=find(deltaENCO.CHAMP(:,itrial,isubject)==min(deltaENCO.CHAMP(:,itrial,isubject)));
+            MaxPlantErrortiming.CHAMP(itrial,isubject)=temp(1);
             
-            temp=find(ENCO.CHAMP(200:1000,j,i)==max(ENCO.CHAMP(200:1000,j,i)));
-            peakDorsitiming.CHAMP(j,i)=temp(1)+199;
+            temp=find(ENCO.CHAMP(200:1000,itrial,isubject)==max(ENCO.CHAMP(200:1000,itrial,isubject)));
+            peakDorsitiming.CHAMP(itrial,isubject)=temp(1)+199;
             
-            temp=find(ENCO.CHAMP(1:600,j,i)==min(ENCO.CHAMP(1:600,j,i)));
-            peakPlanttiming.CHAMP(j,i)=temp(1);
+            temp=find(ENCO.CHAMP(1:600,itrial,isubject)==min(ENCO.CHAMP(1:600,itrial,isubject)));
+            peakPlanttiming.CHAMP(itrial,isubject)=temp(1);
             
-            meanABSError.CHAMP(j,i)=mean(abs(deltaENCO.CHAMP(:,j,i)));
-            meanSIGNEDError.CHAMP(j,i)=mean(deltaENCO.CHAMP(:,j,i));
+            meanABSError.CHAMP(itrial,isubject)=mean(abs(deltaENCO.CHAMP(:,itrial,isubject)));
+            meanSIGNEDError.CHAMP(itrial,isubject)=mean(deltaENCO.CHAMP(:,itrial,isubject));
             
             % Determine what is overshoot AND what is undershoot
             u=0;
             o=0;
             
             for k=1:1000
-                if deltaENCO.CHAMP(k,j,i)<0;
+                if deltaENCO.CHAMP(k,itrial,isubject)<0
                     u=u+1;
                     tempUNDER(u)=k;
                     
-                elseif deltaENCO.CHAMP(k,j,i)>0;
+                elseif deltaENCO.CHAMP(k,itrial,isubject)>0
                     o=o+1;
                     tempOVER(o)=k;
                 end
@@ -547,19 +548,19 @@ for i=x:n
             end
             
             if length(tempUNDER)>0
-                meanUndershoot.CHAMP(j,i)=sum(abs(deltaENCO.CHAMP(tempUNDER,j,i)))/(1000);
+                meanUndershoot.CHAMP(itrial,isubject)=sum(abs(deltaENCO.CHAMP(tempUNDER,itrial,isubject)))/(1000);
             else
-                meanUndershoot.CHAMP(j,i)=0;
+                meanUndershoot.CHAMP(itrial,isubject)=0;
             end
             
             if length(tempOVER)>0
-                meanOvershoot.CHAMP(j,i)=sum(abs(deltaENCO.CHAMP(tempOVER,j,i)))/(1000);
+                meanOvershoot.CHAMP(itrial,isubject)=sum(abs(deltaENCO.CHAMP(tempOVER,itrial,isubject)))/(1000);
             else
-                meanOvershoot.CHAMP(j,i)=0;
+                meanOvershoot.CHAMP(itrial,isubject)=0;
             end
             
-            percentOvershoot.CHAMP(j,i)=meanOvershoot.CHAMP(j,i)/meanABSError.CHAMP(j,i)*100;
-            percentUndershoot.CHAMP(j,i)=meanUndershoot.CHAMP(j,i)/meanABSError.CHAMP(j,i)*100;
+            percentOvershoot.CHAMP(itrial,isubject)=meanOvershoot.CHAMP(itrial,isubject)/meanABSError.CHAMP(itrial,isubject)*100;
+            percentUndershoot.CHAMP(itrial,isubject)=meanUndershoot.CHAMP(itrial,isubject)/meanABSError.CHAMP(itrial,isubject)*100;
             
             tempUNDER=[];
             tempOVER=[];
@@ -567,12 +568,12 @@ for i=x:n
             %Absolute error center of gravity
             clear weight
             for k=1:1000
-                weight(k)=abs(deltaENCO.CHAMP(k,j,i))*k;
+                weight(k)=abs(deltaENCO.CHAMP(k,itrial,isubject))*k;
             end
             
-            CoG.CHAMP(j,i)=sum(weight)/sum(abs(deltaENCO.CHAMP(:,j,i)));
-            normPFC.CHAMP(j,i)=stimtimingSync(j,i)*1000/dureeswing.CHAMP(j,i);
-            CoGrelatif.CHAMP(j,i)=CoG.CHAMP(j,i)-normPFC.CHAMP(j,i);
+            CoG.CHAMP(itrial,isubject)=sum(weight)/sum(abs(deltaENCO.CHAMP(:,itrial,isubject)));
+            normPFC.CHAMP(itrial,isubject)=stimtimingSync(itrial,isubject)*1000/dureeswing.CHAMP(itrial,isubject);
+            CoGrelatif.CHAMP(itrial,isubject)=CoG.CHAMP(itrial,isubject)-normPFC.CHAMP(itrial,isubject);
             
       
         end
@@ -580,37 +581,37 @@ for i=x:n
     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%POST
-    if fin(i)-POST1(i)>1;
-    for j=1:POSTend(i)
+    if fin(isubject)-POST1(isubject)>1;
+    for itrial=1:POSTend(isubject)
         
-        if isnan(deltaENCO.POST(1,j,i))==0
+        if isnan(deltaENCO.POST(1,itrial,isubject))==0
             
             
-            MaxDorsiError.POST(j,i)=max(deltaENCO.POST(:,j,i));
-            peakDorsi.POST(j,i)=max(ENCO.POST(200:1000,j,i));
-            peakPlant.POST(j,i)=min(ENCO.POST(1:600,j,i));
+            MaxDorsiError.POST(itrial,isubject)=max(deltaENCO.POST(:,itrial,isubject));
+            peakDorsi.POST(itrial,isubject)=max(ENCO.POST(200:1000,itrial,isubject));
+            peakPlant.POST(itrial,isubject)=min(ENCO.POST(1:600,itrial,isubject));
             
-            temp=find(deltaENCO.POST(1:1000,j,i)==max(deltaENCO.POST(1:1000,j,i)));
-            MaxDorsiErrortiming.POST(j,i)=temp(1);
+            temp=find(deltaENCO.POST(1:1000,itrial,isubject)==max(deltaENCO.POST(1:1000,itrial,isubject)));
+            MaxDorsiErrortiming.POST(itrial,isubject)=temp(1);
             
-            temp=find(ENCO.POST(200:1000,j,i)==max(ENCO.POST(200:1000,j,i)));
-            peakDorsitiming.POST(j,i)=temp(1)+199;
+            temp=find(ENCO.POST(200:1000,itrial,isubject)==max(ENCO.POST(200:1000,itrial,isubject)));
+            peakDorsitiming.POST(itrial,isubject)=temp(1)+199;
             
-            temp=find(ENCO.POST(1:600,j,i)==min(ENCO.POST(1:600,j,i)));
-            peakPlanttiming.POST(j,i)=temp(1);
+            temp=find(ENCO.POST(1:600,itrial,isubject)==min(ENCO.POST(1:600,itrial,isubject)));
+            peakPlanttiming.POST(itrial,isubject)=temp(1);
             
-            meanABSError.POST(j,i)=mean(abs(deltaENCO.POST(:,j,i)));
-            meanSIGNEDError.POST(j,i)=mean(deltaENCO.POST(:,j,i));
+            meanABSError.POST(itrial,isubject)=mean(abs(deltaENCO.POST(:,itrial,isubject)));
+            meanSIGNEDError.POST(itrial,isubject)=mean(deltaENCO.POST(:,itrial,isubject));
             
             u=0;
             o=0;
             
             for k=1:1000
-                if deltaENCO.POST(k,j,i)<0;
+                if deltaENCO.POST(k,itrial,isubject)<0;
                     u=u+1;
                     tempUNDER(u)=k;
                     
-                elseif deltaENCO.POST(k,j,i)>0;
+                elseif deltaENCO.POST(k,itrial,isubject)>0;
                     o=o+1;
                     tempOVER(o)=k;
                 end
@@ -618,37 +619,37 @@ for i=x:n
             end
             
             if length(tempUNDER)>0
-                meanUndershoot.POST(j,i)=sum(abs(deltaENCO.POST(tempUNDER,j,i)))/(1000);
+                meanUndershoot.POST(itrial,isubject)=sum(abs(deltaENCO.POST(tempUNDER,itrial,isubject)))/(1000);
             else
-                meanUndershoot.POST(j,i)=0;
+                meanUndershoot.POST(itrial,isubject)=0;
             end
             
             if length(tempOVER)>0
-                meanOvershoot.POST(j,i)=sum(abs(deltaENCO.POST(tempOVER,j,i)))/(1000);
+                meanOvershoot.POST(itrial,isubject)=sum(abs(deltaENCO.POST(tempOVER,itrial,isubject)))/(1000);
             else
-                meanOvershoot.POST(j,i)=0;
+                meanOvershoot.POST(itrial,isubject)=0;
             end
             
-            percentOvershoot.POST(j,i)=meanOvershoot.POST(j,i)/meanABSError.POST(j,i)*100;
-            percentUndershoot.POST(j,i)=meanUndershoot.POST(j,i)/meanABSError.POST(j,i)*100;
+            percentOvershoot.POST(itrial,isubject)=meanOvershoot.POST(itrial,isubject)/meanABSError.POST(itrial,isubject)*100;
+            percentUndershoot.POST(itrial,isubject)=meanUndershoot.POST(itrial,isubject)/meanABSError.POST(itrial,isubject)*100;
             
             tempUNDER=[];
             tempOVER=[];
             
         else
             
-            MaxDorsiError.POST(j,i)=nan;
-            meanABSError.POST(j,i)=nan;
-            meanSIGNEDError.POST(j,i)=nan;
-            meanUndershoot.POST(j,i)=nan;
-            meanOvershoot.POST(j,i)=nan;
-            percentOvershoot.POST(j,i)=nan;
-            percentUndershoot.POST(j,i)=nan;
-            peakDorsi.POST(j,i)=nan;
-            peakPlant.POST(j,i)=nan;
-            MaxDorsiErrortiming.POST(j,i)=nan;
-            peakDorsitiming.POST(j,i)=nan;
-            peakPlanttiming.POST(j,i)=nan;
+            MaxDorsiError.POST(itrial,isubject)=nan;
+            meanABSError.POST(itrial,isubject)=nan;
+            meanSIGNEDError.POST(itrial,isubject)=nan;
+            meanUndershoot.POST(itrial,isubject)=nan;
+            meanOvershoot.POST(itrial,isubject)=nan;
+            percentOvershoot.POST(itrial,isubject)=nan;
+            percentUndershoot.POST(itrial,isubject)=nan;
+            peakDorsi.POST(itrial,isubject)=nan;
+            peakPlant.POST(itrial,isubject)=nan;
+            MaxDorsiErrortiming.POST(itrial,isubject)=nan;
+            peakDorsitiming.POST(itrial,isubject)=nan;
+            peakPlanttiming.POST(itrial,isubject)=nan;
         end
         
     end
