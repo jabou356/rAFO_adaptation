@@ -3,10 +3,12 @@ function data.Cycles_Table = removebad_Superpose( data, signal, cycles, type, va
 
 if strcmp(type, 'Group')
     data.Table1=data;
-    data.Cycle_Table=GroupData.CycleTable(:,:,isubject);
+    data.Cycle_Table(cycles,1)=1;
+    data.Cycle_Table(cycles,2)=duree(cycles);
+    data.chan_name=signal;
+end
 
 numchan=length(signal);
-dureecycle=size(data.Cycles_Table,2);
 
 j=0;
 for isignal=1:numchan
@@ -31,7 +33,7 @@ for isignal=1:numchan
     hold on;
     
     a=axis;
-    axis([0 dureecycle bottom(j) top(j)])
+    axis([0 data.Cycle_Table(icycle,2)-data.Cycle_Table(i,1) bottom(j) top(j)])
     
 end %For
 
