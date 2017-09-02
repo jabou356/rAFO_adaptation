@@ -70,7 +70,7 @@ if sum(strcmp(varargin, 'flagMean')) == 1
 for icycle=1:length(cycles)
     
     subplot(numchan+1,1,numchan+1)
-    h(cycles(icycle),numchan+1) = plot(cycles(icycle),mean(data.Table1(:,cycles(icycle))));
+    h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table1(:,cycles(icycle))));
     hold on
     
     set(h(cycles(icycle),numchan+1),'color','b','marker','o');

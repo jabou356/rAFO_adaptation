@@ -44,304 +44,310 @@ AnalTA.POSTend(1:30)=nan;
 end
 
 
-for i=x:n
+for isubject=x:n
     
     k=0;
     
-    if isnan(FF1(i))==0
-        lastcycle=FF1(i)-1;
+    if isnan(FF1(isubject))==0
+        lastcycle=FF1(isubject)-1;
     else
-        lastcycle=fin(i);
+        lastcycle=fin(isubject);
     end
     
-    for j=1:lastcycle
+    for itrial=1:lastcycle
          k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & SyncTiming(i,j)>500
+        if Cycle_Table(3,itrial,isubject)==1 & SyncTiming(isubject,itrial)<1000 & SyncTiming(isubject,itrial)>500
             
-            stop=find(isnan(data(1:end,j,i))==0,1,'last')+4;
+            stop=find(isnan(data(1:end,itrial,isubject))==0,1,'last')+4;
             
-            if stop>0;
+            if stop>0
             
            
             
-            AnalTA.dureeswing.baseline2(k,i)=stop-SyncTiming(i,j)+1;
+            AnalTA.dureeswing.baseline2(k,isubject)=stop-SyncTiming(isubject,itrial)+1;
             
-            AnalTA.TA.baseline2(:,k,i)=interp1(1:round(AnalTA.dureeswing.baseline2(k,i)*1.3),data(SyncTiming(i,j)-round(AnalTA.dureeswing.baseline2(k,i)*0.3):stop,j,i),1:(round(AnalTA.dureeswing.baseline2(k,i)*1.3)-1)/(1299):round(AnalTA.dureeswing.baseline2(k,i)*1.3));
+            AnalTA.TA.baseline2(:,k,isubject)=interp1(1:round(AnalTA.dureeswing.baseline2(k,isubject)*1.3),data(SyncTiming(isubject,itrial)-round(AnalTA.dureeswing.baseline2(k,isubject)*0.3):stop,itrial,isubject),1:(round(AnalTA.dureeswing.baseline2(k,isubject)*1.3)-1)/(1299):round(AnalTA.dureeswing.baseline2(k,isubject)*1.3));
                      
-            temp=data(SyncTiming(i,j)-150:end,j,i);
-            AnalTA.peakTA.baseline2(k,i)=max(data(:,j,i));
+            temp=data(SyncTiming(isubject,itrial)-150:end,itrial,isubject);
+            AnalTA.peakTA.baseline2(k,isubject)=max(data(:,itrial,isubject));
             
             end
             
         end
               
-        AnalTA.cycleID.baseline2(k,i)=j;
+        AnalTA.cycleID.baseline2(k,isubject)=itrial;
                 
     end
-    AnalTA.BASELINE2end(i)=k;
-    
-    clear h bad_cycles
-    figure(1)
-    clf
-    subplot(2,1,1)
-    for j=1:AnalTA.BASELINE2end(i)
-    h(j,1)=plot(AnalTA.TA.baseline2(:,j,i));
-    hold on
-    end
-    set(h(j,1),'color','b')
-       
-    subplot(2,1,2)
-    for j=1:AnalTA.BASELINE2end(i)
-        if isnan(AnalTA.TA.baseline2(1,j,i))==0
-        s=['plot(j,mean(AnalTA.TA.baseline2(1:end-20,j,i)))'];
-        h(j,2)=eval(s);
-        hold on
-        set(h(j,2),'color','b','marker','o');
-        end
-    end 
-    
-    xlabel('click in the white space when finished');
-    
-    bad_cycles=[];
-    count=0;
-    over=0;
-    
-    while not(over)
+    AnalTA.BASELINE2end(isubject)=k;
+   
+    bad_cycles=removebad_Superpose1(AnalTA.TA.baseline2(:,:,isubject),{'TA'},...
+        1:find(~isnan(AnalTA.TA.baseline2(1,:,isubject)),1,'last'), 'Group', 'flagMean');
+%     clear h bad_cycles
+%     figure(1)
+%     clf
+%     subplot(2,1,1)
+%     for j=1:AnalTA.BASELINE2end(i)
+%     h(j,1)=plot(AnalTA.TA.baseline2(:,j,i));
+%     hold on
+%     end
+%     set(h(j,1),'color','b')
+%        
+%     subplot(2,1,2)
+%     for j=1:AnalTA.BASELINE2end(i)
+%         if isnan(AnalTA.TA.baseline2(1,j,i))==0
+%         s=['plot(j,mean(AnalTA.TA.baseline2(1:end-20,j,i)))'];
+%         h(j,2)=eval(s);
+%         hold on
+%         set(h(j,2),'color','b','marker','o');
+%         end
+%     end 
+%     
+%     xlabel('click in the white space when finished');
+%     
+%     bad_cycles=[];
+%     count=0;
+%     over=0;
+%     
+%     while not(over)
+%         
+%         waitforbuttonpress;
+%         hz=gco;
+%         [bad,channel]=find(h==hz);
+%         
+%         if not(isempty(bad))
+%             set(h(bad,1),'color','r','linewidth',2);
+%             ylabel(bad);
+%             set(h(bad,2),'color','r','marker','o')
+%                         
+%            for k=1:2
+%             uistack(h(bad,k),'top')
+%            end
+%             
+%             
+%             confirmation=menu('Non valide?','oui','non');
+%             
+%             switch confirmation
+%                 case confirmation==1
+%                     
+%                     delete(h(bad,:))
+%                     count=count+1;
+%                     bad_cycles(count)=bad;
+%                     
+%                 otherwise
+%                     
+%                     set(h(bad,1),'color','b','linewidth',0.5);
+%                     set(h(bad,2),'color','b','marker','o')
+%                     
+%             end %SWITCH
+%             
+%         else
+%             over=1;
+%         end; %if
+%     end; %while
         
-        waitforbuttonpress;
-        hz=gco;
-        [bad,channel]=find(h==hz);
-        
-        if not(isempty(bad))
-            set(h(bad,1),'color','r','linewidth',2);
-            ylabel(bad);
-            set(h(bad,2),'color','r','marker','o')
-                        
-           for k=1:2
-            uistack(h(bad,k),'top')
-           end
-            
-            
-            confirmation=menu('Non valide?','oui','non');
-            
-            switch confirmation
-                case confirmation==1
-                    
-                    delete(h(bad,:))
-                    count=count+1;
-                    bad_cycles(count)=bad;
-                    
-                otherwise
-                    
-                    set(h(bad,1),'color','b','linewidth',0.5);
-                    set(h(bad,2),'color','b','marker','o')
-                    
-            end %SWITCH
-            
-        else
-            over=1;
-        end; %if
-    end; %while
-        
-Cycle_Table(3,AnalTA.cycleID.baseline2(bad_cycles,i),i)=-1;
-AnalTA.TA.baseline2(:,bad_cycles,i)=nan;
+Cycle_Table(3,AnalTA.cycleID.baseline2(bad_cycles,isubject),isubject)=-1;
+AnalTA.TA.baseline2(:,bad_cycles,isubject)=nan;
 
-temp=find(Cycle_Table(3,AnalTA.BASELINE2end(i)-49:AnalTA.BASELINE2end(i),i)==1);
+temp=find(Cycle_Table(3,AnalTA.BASELINE2end(isubject)-49:AnalTA.BASELINE2end(isubject),isubject)==1);
 countbase=length(temp);
 
-    AnalTA.baseline2(:,i)=mean(AnalTA.TA.baseline2(:,temp+AnalTA.BASELINE2end(i)-50,i),2); %
+    AnalTA.baseline2(:,isubject)=mean(AnalTA.TA.baseline2(:,temp+AnalTA.BASELINE2end(isubject)-50,isubject),2); %
 %    velocitybaseline2(:,i)=mean(Velocity.baseline2(:,temp+BASELINE2end(i)-50,i),2);
     clear temp
 
  k=0;
-    if isnan(FF1(i))==0
-    for j=FF1(i):POST1(i)-1
+    if isnan(FF1(isubject))==0
+    for itrial=FF1(isubject):POST1(isubject)-1
            k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & SyncTiming(i,j)>500
+        if Cycle_Table(3,itrial,isubject)==1 & SyncTiming(isubject,itrial)<1000 & SyncTiming(isubject,itrial)>500
             
-            stop=find(isnan(data(1:end,j,i))==0,1,'last')+4;
+            stop=find(isnan(data(1:end,itrial,isubject))==0,1,'last')+4;
             
             if stop>0;
             
            
             
-            AnalTA.dureeswing.CHAMP(k,i)=stop-SyncTiming(i,j)+1;
+            AnalTA.dureeswing.CHAMP(k,isubject)=stop-SyncTiming(isubject,itrial)+1;
             
-            AnalTA.TA.CHAMP(:,k,i)=interp1(1:round(AnalTA.dureeswing.CHAMP(k,i)*1.3),data(SyncTiming(i,j)-round(AnalTA.dureeswing.CHAMP(k,i)*0.3):stop,j,i),1:(round(AnalTA.dureeswing.CHAMP(k,i)*1.3)-1)/(1299):round(AnalTA.dureeswing.CHAMP(k,i)*1.3));
+            AnalTA.TA.CHAMP(:,k,isubject)=interp1(1:round(AnalTA.dureeswing.CHAMP(k,isubject)*1.3),data(SyncTiming(isubject,itrial)-round(AnalTA.dureeswing.CHAMP(k,isubject)*0.3):stop,itrial,isubject),1:(round(AnalTA.dureeswing.CHAMP(k,isubject)*1.3)-1)/(1299):round(AnalTA.dureeswing.CHAMP(k,isubject)*1.3));
                      
-            temp=data(SyncTiming(i,j)-150:end,j,i);
-            AnalTA.peakTA.CHAMP(k,i)=max(data(:,j,i));
+            temp=data(SyncTiming(isubject,itrial)-150:end,itrial,isubject);
+            AnalTA.peakTA.CHAMP(k,isubject)=max(data(:,itrial,isubject));
             
             end
             
         end
               
         
-     AnalTA.cycleID.CHAMP(k,i)=j;       
+     AnalTA.cycleID.CHAMP(k,isubject)=itrial;       
     end    
-    AnalTA.CHAMPend(i)=k;
+    AnalTA.CHAMPend(isubject)=k;
     
-    
-    clear h bad_cycles
-    figure(1)
-    clf
-    subplot(2,1,1)
-    for j=1:AnalTA.CHAMPend(i)
-    h(j,1)=plot(AnalTA.TA.CHAMP(:,j,i));
-    hold on
-    end
-    set(h(j,1),'color','b')
-       
-    subplot(2,1,2)
-    for j=1:AnalTA.CHAMPend(i)
-        if isnan(AnalTA.TA.CHAMP(1,j,i))==0
-        s=['plot(j,mean(AnalTA.TA.CHAMP(1:end-20,j,i)))'];
-        h(j,2)=eval(s);
-        hold on
-        set(h(j,2),'color','b','marker','o');
-        end
-    end 
-    
-    xlabel('click in the white space when finished');
-    
-    bad_cycles=[];
-    count=0;
-    over=0;
-    
-    while not(over)
+    bad_cycles=removebad_Superpose1(AnalTA.TA.CHAMP(:,:,isubject),{'TA'},...
+        1:find(~isnan(AnalTA.TA.CHAMP(1,:,isubject)),1,'last'), 'Group', 'flagMean');
+   
+%     clear h bad_cycles
+%     figure(1)
+%     clf
+%     subplot(2,1,1)
+%     for j=1:AnalTA.CHAMPend(i)
+%     h(j,1)=plot(AnalTA.TA.CHAMP(:,j,i));
+%     hold on
+%     end
+%     set(h(j,1),'color','b')
+%        
+%     subplot(2,1,2)
+%     for j=1:AnalTA.CHAMPend(i)
+%         if isnan(AnalTA.TA.CHAMP(1,j,i))==0
+%         s=['plot(j,mean(AnalTA.TA.CHAMP(1:end-20,j,i)))'];
+%         h(j,2)=eval(s);
+%         hold on
+%         set(h(j,2),'color','b','marker','o');
+%         end
+%     end 
+%     
+%     xlabel('click in the white space when finished');
+%     
+%     bad_cycles=[];
+%     count=0;
+%     over=0;
+%     
+%     while not(over)
+%         
+%         waitforbuttonpress;
+%         hz=gco;
+%         [bad,channel]=find(h==hz);
+%         
+%         if not(isempty(bad))
+%             set(h(bad,1),'color','r','linewidth',2);
+%             ylabel(bad);
+%             set(h(bad,2),'color','r','marker','o')
+%                         
+%            for k=1:2
+%             uistack(h(bad,k),'top')
+%            end
+%             
+%             
+%             confirmation=menu('Non valide?','oui','non');
+%             
+%             switch confirmation
+%                 case confirmation==1
+%                     
+%                     delete(h(bad,:))
+%                     count=count+1;
+%                     bad_cycles(count)=bad;
+%                     
+%                 otherwise
+%                     
+%                     set(h(bad,1),'color','b','linewidth',0.5);
+%                     set(h(bad,2),'color','b','marker','o')
+%                     
+%             end %SWITCH
+%             
+%         else
+%             over=1;
+%         end; %if
+%     end; %while
         
-        waitforbuttonpress;
-        hz=gco;
-        [bad,channel]=find(h==hz);
-        
-        if not(isempty(bad))
-            set(h(bad,1),'color','r','linewidth',2);
-            ylabel(bad);
-            set(h(bad,2),'color','r','marker','o')
-                        
-           for k=1:2
-            uistack(h(bad,k),'top')
-           end
-            
-            
-            confirmation=menu('Non valide?','oui','non');
-            
-            switch confirmation
-                case confirmation==1
-                    
-                    delete(h(bad,:))
-                    count=count+1;
-                    bad_cycles(count)=bad;
-                    
-                otherwise
-                    
-                    set(h(bad,1),'color','b','linewidth',0.5);
-                    set(h(bad,2),'color','b','marker','o')
-                    
-            end %SWITCH
-            
-        else
-            over=1;
-        end; %if
-    end; %while
-        
-Cycle_Table(3,AnalTA.cycleID.CHAMP(bad_cycles,i),i)=-1;
-AnalTA.TA.CHAMP(:,bad_cycles,i)=nan;
+Cycle_Table(3,AnalTA.cycleID.CHAMP(bad_cycles,isubject),isubject)=-1;
+AnalTA.TA.CHAMP(:,bad_cycles,isubject)=nan;
     end
 
-   if fin(i)-POST1(i)>1 
+   if fin(isubject)-POST1(isubject)>1 
     k=0;
-    for j=POST1(i):fin(i)-1
+    for itrial=POST1(isubject):fin(isubject)-1
          k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & SyncTiming(i,j)>500
+        if Cycle_Table(3,itrial,isubject)==1 & SyncTiming(isubject,itrial)<1000 & SyncTiming(isubject,itrial)>500
             
-            stop=find(isnan(data(1:end,j,i))==0,1,'last')+4;
+            stop=find(isnan(data(1:end,itrial,isubject))==0,1,'last')+4;
             
             if stop>0;
             
            
             
-            AnalTA.dureeswing.POST(k,i)=stop-SyncTiming(i,j)+1;
+            AnalTA.dureeswing.POST(k,isubject)=stop-SyncTiming(isubject,itrial)+1;
             
-            AnalTA.TA.POST(:,k,i)=interp1(1:round(AnalTA.dureeswing.POST(k,i)*1.3),data(SyncTiming(i,j)-round(AnalTA.dureeswing.POST(k,i)*0.3):stop,j,i),1:(round(AnalTA.dureeswing.POST(k,i)*1.3)-1)/(1299):round(AnalTA.dureeswing.POST(k,i)*1.3));
+            AnalTA.TA.POST(:,k,isubject)=interp1(1:round(AnalTA.dureeswing.POST(k,isubject)*1.3),data(SyncTiming(isubject,itrial)-round(AnalTA.dureeswing.POST(k,isubject)*0.3):stop,itrial,isubject),1:(round(AnalTA.dureeswing.POST(k,isubject)*1.3)-1)/(1299):round(AnalTA.dureeswing.POST(k,isubject)*1.3));
                      
-            temp=data(SyncTiming(i,j)-150:end,j,i);
-            AnalTA.peakTA.POST(k,i)=max(data(:,j,i));
+            temp=data(SyncTiming(isubject,itrial)-150:end,itrial,isubject);
+            AnalTA.peakTA.POST(k,isubject)=max(data(:,itrial,isubject));
             
             end
             
         end
         
-        AnalTA.cycleID.POST(k,i)=j;     
+        AnalTA.cycleID.POST(k,isubject)=itrial;     
     end
     
-     AnalTA.POSTend(i)=k;
+     AnalTA.POSTend(isubject)=k;
+     bad_cycles=removebad_Superpose1(AnalTA.TA.POST(:,:,isubject),{'TA'},...
+        1:find(~isnan(AnalTA.TA.POST(1,:,isubject)),1,'last'), 'Group', 'flagMean');
      
-     clear h bad_cycles
-    figure(1)
-    clf
-    subplot(2,1,1)
-    for j=1:AnalTA.POSTend(i)
-    h(j,1)=plot(AnalTA.TA.POST(:,j,i));
-    hold on
-    end
-    set(h(j,1),'color','b')
-       
-    subplot(2,1,2)
-    for j=1:AnalTA.POSTend(i)
-        if isnan(AnalTA.TA.POST(1,j,i))==0
-        s=['plot(j,mean(AnalTA.TA.POST(1:end-20,j,i)))'];
-        h(j,2)=eval(s);
-        hold on
-        set(h(j,2),'color','b','marker','o');
-        end
-    end 
-    
-    xlabel('click in the white space when finished');
-    
-    bad_cycles=[];
-    count=0;
-    over=0;
-    
-    while not(over)
+%      clear h bad_cycles
+%     figure(1)
+%     clf
+%     subplot(2,1,1)
+%     for j=1:AnalTA.POSTend(i)
+%     h(j,1)=plot(AnalTA.TA.POST(:,j,i));
+%     hold on
+%     end
+%     set(h(j,1),'color','b')
+%        
+%     subplot(2,1,2)
+%     for j=1:AnalTA.POSTend(i)
+%         if isnan(AnalTA.TA.POST(1,j,i))==0
+%         s=['plot(j,mean(AnalTA.TA.POST(1:end-20,j,i)))'];
+%         h(j,2)=eval(s);
+%         hold on
+%         set(h(j,2),'color','b','marker','o');
+%         end
+%     end 
+%     
+%     xlabel('click in the white space when finished');
+%     
+%     bad_cycles=[];
+%     count=0;
+%     over=0;
+%     
+%     while not(over)
+%         
+%         waitforbuttonpress;
+%         hz=gco;
+%         [bad,channel]=find(h==hz);
+%         
+%         if not(isempty(bad))
+%             set(h(bad,1),'color','r','linewidth',2);
+%             ylabel(bad);
+%             set(h(bad,2),'color','r','marker','o')
+%                         
+%            for k=1:2
+%             uistack(h(bad,k),'top')
+%            end
+%             
+%             
+%             confirmation=menu('Non valide?','oui','non');
+%             
+%             switch confirmation
+%                 case confirmation==1
+%                     
+%                     delete(h(bad,:))
+%                     count=count+1;
+%                     bad_cycles(count)=bad;
+%                     
+%                 otherwise
+%                     
+%                     set(h(bad,1),'color','b','linewidth',0.5);
+%                     set(h(bad,2),'color','b','marker','o')
+%                     
+%             end %SWITCH
+%             
+%         else
+%             over=1;
+%         end; %if
+%     end; %while
         
-        waitforbuttonpress;
-        hz=gco;
-        [bad,channel]=find(h==hz);
-        
-        if not(isempty(bad))
-            set(h(bad,1),'color','r','linewidth',2);
-            ylabel(bad);
-            set(h(bad,2),'color','r','marker','o')
-                        
-           for k=1:2
-            uistack(h(bad,k),'top')
-           end
-            
-            
-            confirmation=menu('Non valide?','oui','non');
-            
-            switch confirmation
-                case confirmation==1
-                    
-                    delete(h(bad,:))
-                    count=count+1;
-                    bad_cycles(count)=bad;
-                    
-                otherwise
-                    
-                    set(h(bad,1),'color','b','linewidth',0.5);
-                    set(h(bad,2),'color','b','marker','o')
-                    
-            end %SWITCH
-            
-        else
-            over=1;
-        end; %if
-    end; %while
-        
-Cycle_Table(3,AnalTA.cycleID.POST(bad_cycles,i),i)=-1;
-AnalTA.TA.POST(:,bad_cycles,i)=nan;
+Cycle_Table(3,AnalTA.cycleID.POST(bad_cycles,isubject),isubject)=-1;
+AnalTA.TA.POST(:,bad_cycles,isubject)=nan;
    end
      
 end
