@@ -128,30 +128,41 @@ function Remove_bad_superpose_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 data = load('Table_data.mat');
 
-Signal = input(['Which signals would you like to show for validation?{''Sig1'',''Sig2'',''etc''}');
+Signal = input('Which signals would you like to show for validation?{''Sig1'',''Sig2'',''etc''}');
 
 CTRL = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 0);
 FF = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 1);
 RFLX = find( data.Cycle_Table(:,4) == 1 & data.Cycle_Table(:,5) == 0);
 RFLXFF = find( data.Cycle_Table(:,4) == 1 & data.Cycle_Table(:,5) == 1);
 
-if ~isempty(CTLR)
-data.Cycle_Table = removebad_Superpose (data, Signal, CTRL, 'subject')
+if ~isempty(CTRL)
+bad_cycles = removebad_Superpose1 (data, Signal, CTRL, 'subject','flagDuree');
+data.Cycle_Table(bad_cycles,3)=0;
+data.Cycle_Table(CTRL(~ismember(CTRL, bad_cycles)),3) = 1;
 end
 
 if ~isempty(FF)
-data.Cycle_Table = removebad_Superpose (data, Signal, FF, 'subject')
+bad_cycles = removebad_Superpose1 (data, Signal, FF, 'subject', 'flagDuree');
+data.Cycle_Table(bad_cycles,3)=0;
+data.Cycle_Table(FF(~ismember(FF, bad_cycles)),3) = 1;
 end
 
 if ~isempty(RFLX)
-data.Cycle_Table = removebad_Superpose (data, Signal, RFLX, 'subject')
+bad_cycles = removebad_Superpose1 (data, Signal, RFLX, 'subject', 'flagDuree');
+data.Cycle_Table(bad_cycles,3)=0;
+data.Cycle_Table(RFLX(~ismember(RFLX, bad_cycles)),3) = 1;
 end
 
 if ~isempty(RFLXFF)
-data.Cycle_Table = removebad_Superpose (data, Signal, RFLXFF, 'subject')
+bad_cycles = removebad_Superpose1 (data, Signal, RFLXFF, 'subject', 'flagDuree');
+data.Cycle_Table(bad_cycles,3)=0;
+data.Cycle_Table(RFLXFF(~ismember(RFLXFF, bad_cycles)),3) = 1;
 end
 
 clearvars -except data
+v2struct(data)
+clear data
+save('Table_data.mat')
 
 disp('Table_data saved')
 
