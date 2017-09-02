@@ -11,7 +11,7 @@ else
     n=30
 end
 
-
+%n=10
 
 if isfield(AnalTA,'TA')
 
@@ -22,19 +22,19 @@ else
 x=1;
 AnalTA.TA.baseline2(1:1300,1:588,1:30)=nan;
 AnalTA.TA.CHAMP(1:1300,1:397,1:30)=nan;
-AnalTA.TA.POST(1:1300,1:290,1:30)=nan;
+AnalTA.TA.POST(1:1300,1:400,1:30)=nan;
 
 AnalTA.dureeswing.baseline2(1:588,1:30)=nan;
 AnalTA.dureeswing.CHAMP(1:397,1:30)=nan;
-AnalTA.dureeswing.POST(1:290,1:30)=nan;
+AnalTA.dureeswing.POST(1:400,1:30)=nan;
 
 AnalTA.peakTA.baseline2(1:588,1:30)=nan;
 AnalTA.peakTA.CHAMP(1:397,1:30)=nan;
-AnalTA.peakTA.POST(1:290,1:30)=nan;
+AnalTA.peakTA.POST(1:400,1:30)=nan;
 
 AnalTA.cycleID.baseline2(1:588,1:30)=nan;
 AnalTA.cycleID.CHAMP(1:397,1:30)=nan;
-AnalTA.cycleID.POST(1:290,1:30)=nan;
+AnalTA.cycleID.POST(1:400,1:30)=nan;
 
 AnalTA.baseline2(1:1300,1:30)=nan;
 AnalTA.BASELINE2end(1:30)=nan;
