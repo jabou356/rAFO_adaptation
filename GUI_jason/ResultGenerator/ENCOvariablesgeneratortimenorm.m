@@ -110,17 +110,18 @@ for isubject=x:n
             ENCO.baseline2(:,k,isubject)=nan;            
             dureeswing.baseline2(k,isubject)=nan;
         end
-        cycleID.baseline2(k,isubject)=j;
+        cycleID.baseline2(k,isubject)=itrial;
         
         
     end
     BASELINE2end(isubject)=k;
 
-    duree=dureeswing.baseline2(:,isubject);
-    tempCycle_Table=removebad_Superpose(ENCO.baseline2(:,:,isubject),'ENCO',...
-        1:find(~isnan(ENCO.baseline2(1,:,isubject)),1,'last'), 'Group', duree);
+    duree=dureeswing.baseline2(1:find(~isnan(ENCO.baseline2(1,:,isubject)),1,'last'),isubject);
     
-    GroupData.Cycle_Table(3,tempCycleTable==0,isubject)=-1;
+    bad_cycles=removebad_Superpose1(ENCO.baseline2(:,:,isubject),{'ENCO'},...
+        1:find(~isnan(ENCO.baseline2(1,:,isubject)),1,'last'), 'Group', 'flagDuree', duree);
+    
+    Cycle_Table(3,cycleID.baseline2(bad_cycles,isubject),isubject)=-1;
     
 %     clear h bad_cycles
 %     figure(1)
@@ -183,6 +184,7 @@ for isubject=x:n
 %         end; %if
 %     end; %while
 %         
+%
 % Cycle_Table(3,cycleID.baseline2(bad_cycles,i),i)=-1;
  ENCO.baseline2(:,bad_cycles,isubject)=nan;
 
@@ -217,17 +219,19 @@ for itrial=FF1(isubject):POST1(isubject)-1
             ENCO.CHAMP(:,k,isubject)=nan;            
             dureeswing.CHAMP(k,isubject)=nan;
         end
-        cycleID.CHAMP(k,isubject)=j;
+        cycleID.CHAMP(k,isubject)=itrial;
         
         
     end
     CHAMPend(isubject)=k;
 % 
-    duree=dureeswing.CHAMP(:,isubject);
-    tempCycle_Table=removebad_Superpose(ENCO.CHAMP(:,:,isubject),'ENCO',...
-        1:find(~isnan(ENCO.CHAMP(1,:,isubject)),1,'last'), 'Group', duree);
+    duree=dureeswing.CHAMP(1:find(~isnan(ENCO.CHAMP(1,:,isubject)),1,'last'),isubject);
+        
+    bad_cycles=removebad_Superpose1(ENCO.CHAMP(:,:,isubject),{'ENCO'},...
+        1:find(~isnan(ENCO.CHAMP(1,:,isubject)),1,'last'), 'Group', 'flagDuree', duree);
     
-    GroupData.Cycle_Table(3,(tempCycleTable==0)+BASELINE2end(isubject),isubject)=-1;
+    Cycle_Table(3,cycleID.CHAMP(bad_cycles,isubject),isubject)=-1;
+    
 %   clear h bad_cycles
 %     figure(1)
 %     clf
@@ -318,13 +322,18 @@ for itrial=POST1(isubject):fin(isubject)-1
             ENCO.POST(:,k,isubject)=nan;            
             dureeswing.POST(k,isubject)=nan;
         end
-        cycleID.POST(k,isubject)=j;
+        cycleID.POST(k,isubject)=itrial;
         
         
     end
     POSTend(isubject)=k;
     
-   
+    duree=dureeswing.POST(1:find(~isnan(ENCO.POST(1,:,isubject)),1,'last'),isubject);
+
+    bad_cycles=removebad_Superpose1(ENCO.POST(:,:,isubject),{'ENCO'},...
+        1:find(~isnan(ENCO.POST(1,:,isubject)),1,'last'), 'Group', 'flagDuree', duree);
+    
+    Cycle_Table(3,cycleID.POST(bad_cycles,isubject),isubject)=-1;   
     
 %      clear h bad_cycles
 %     figure(1)

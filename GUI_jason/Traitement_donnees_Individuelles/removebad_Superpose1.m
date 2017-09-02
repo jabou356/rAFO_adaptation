@@ -4,12 +4,15 @@ function bad_cycles = removebad_Superpose1( data, signal, cycles, type, varargin
 % Lorsque cette fonction est utilisé dans un fichier de groupe, il y a
 % seulement un signal
 if strcmp(type, 'Group')
-    data.Table1=data;
+    temp=data;
+    clear data
+    data.Table1=temp;
     data.chan_name=signal;
+    clear temp
     
-    if exist('flagDuree','var')
+    if sum(strcmp(varargin, 'flagDuree')) == 1    
     data.Cycle_Table(cycles,1) = 1;
-    data.Cycle_Table(cycles,1)=dureecycles;
+    data.Cycle_Table(cycles,2)=cell2mat(varargin(find(strcmp(varargin,'flagDuree'))+1));
     end
     
 end
