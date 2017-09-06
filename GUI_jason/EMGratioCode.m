@@ -77,15 +77,19 @@ for isujet=nsujets:-1:1
     BeforePFCLate(isujet)=mean(FFlateratio(1:peakCONS_FtimingFFlate(isujet),isujet),1);
     log2BeforePFCLate(isujet)=mean(log2FFlateratio(1:peakCONS_FtimingFFlate(isujet),isujet),1);
     
-    AfterPFCEarly(isujet)=mean(FFearlyratio(peakCONS_FtimingFFearly(isujet):end,isujet),1);
-    log2AfterPFCEarly(isujet)=mean(log2FFearlyratio(peakCONS_FtimingFFearly(isujet):end,isujet),1);
-    AfterPFCLate(isujet)=mean(FFlateratio(peakCONS_FtimingFFlate(isujet):end,isujet),1);
-    log2AfterPFCLate(isujet)=mean(log2FFlateratio(peakCONS_FtimingFFlate(isujet):end,isujet),1);
+    % For AfterPFC and Total, we use nanmean because the RBI filter applied
+    % before TA analysis code create nans at the end of each stride. Does
+    % not affect BeforePFC because the beginning of this window (30% stride duration before TO) is not the
+    % beginning of the stride (HC)
+    AfterPFCEarly(isujet)=nanmean(FFearlyratio(peakCONS_FtimingFFearly(isujet):end,isujet),1);
+    log2AfterPFCEarly(isujet)=nanmean(log2FFearlyratio(peakCONS_FtimingFFearly(isujet):end,isujet),1);
+    AfterPFCLate(isujet)=nanmean(FFlateratio(peakCONS_FtimingFFlate(isujet):end,isujet),1);
+    log2AfterPFCLate(isujet)=nanmean(log2FFlateratio(peakCONS_FtimingFFlate(isujet):end,isujet),1);
     
-    TotalEarly(isujet)=mean(FFearlyratio(:,isujet),1);
-    log2TotalEarly(isujet)=mean(log2FFearlyratio(:,isujet),1);
-    TotalLate(isujet)=mean(FFlateratio(:,isujet),1);
-    log2TotalLate(isujet)=mean(log2FFlateratio(:,isujet),1);
+    TotalEarly(isujet)=nanmean(FFearlyratio(:,isujet),1);
+    log2TotalEarly(isujet)=nanmean(log2FFearlyratio(:,isujet),1);
+    TotalLate(isujet)=nanmean(FFlateratio(:,isujet),1);
+    log2TotalLate(isujet)=nanmean(log2FFlateratio(:,isujet),1);
     
     
     
