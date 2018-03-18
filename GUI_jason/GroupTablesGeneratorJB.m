@@ -77,4 +77,4 @@ while Question==1
 end %while
 
 [filename,pathname]=uiputfile('*.mat');
-s=['save(',char(39),[pathname,filename],char(39),',',char(39),'GroupData',char(39),')'];eval(s); %Problème!! Je ne peux pas overwriter
+s=['save(',char(39),[pathname,filename],char(39),',',char(39),'GroupData',char(39),',''-v7.3'')'];eval(s); %Problème!! Je ne peux pas overwriter
