@@ -11,7 +11,7 @@ load('Table_data.mat');
     validnum(4)=find(strcmp(chan_name,'COUPLE')==1);
     validnum(5)=find(strcmp(chan_name,'HS')==1);
     validnum(6)=find(strcmp(chan_name,'CONS_F')==1);
-    numchan2=6;
+    numchan2=length(validnum);
     
     
     top(1)=2000;
