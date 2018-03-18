@@ -1,20 +1,21 @@
-% Programme servant à combiner les données afin de créer des populations
+
+% Programme servant Ã  combiner les donnÃ©es afin de crÃ©er des populations
 function GroupData = GroupTablesGenerator
 
 clear all
 clc
 
 
-Question=menu('Avez-vous déjà un fichier de groupe?','oui','non');
-Signal=input('Quel signal voulez-vous intégrer? ');
+Question=menu('Avez-vous dÃ©jÃ  un fichier de groupe?','oui','non');
+Signal=input('Quel signal voulez-vous intÃ©grer? ');
 
 
 if Question==1
     %Si vous avez un fichier de groupe, chargez le fichier de groupe
-    [filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier de groupe')
+    [filename,pathname]=uigetfile('*.mat','SÃ©lectionnez votre fichier de groupe')
     load([pathname,filename])
     
-    % Détermine le nombre de sujet déjà entré dans le fichier (Max n=30)
+    % DÃ©termine le nombre de sujet dÃ©jÃ  entrÃ© dans le fichier (Max n=30)
     s=['tempN=find(isnan(GroupData.',cell2mat(Signal(1)),'(1,1,:))==1)'];eval(s);
      clear s ;
     N=tempN(1)-1;
@@ -23,7 +24,7 @@ if Question==1
 else
     
     for i=1:length(Signal)
-    %Si vous n'avez pas de fichier de groupe, en crée un
+    %Si vous n'avez pas de fichier de groupe, en crÃ©e un
     tempSignal=cell2mat(Signal(i));
     N=0;
     s=['GroupData.',tempSignal,'(1:1500,1:1200,1:30)=nan'];eval(s);
@@ -34,25 +35,25 @@ else
    
 end
 
-Question=menu('Avez vous des fichiers à intégrer?','oui', 'non')
+Question=menu('Avez vous des fichiers Ã  intÃ©grer?','oui', 'non')
 
 while Question==1
     
     clear Table* chan_name Cycle_Table ISRFLX_channel numchan num* s templenght onsetFF
     N=N+1;
     
-    % Va chercher le fichier de donnée du sujet N
-    [filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier contenant votre table de données')
+    % Va chercher le fichier de donnÃ©e du sujet N
+    [filename,pathname]=uigetfile('*.mat','SÃ©lectionnez votre fichier contenant votre table de donnÃ©es')
     load([pathname,filename])
       
     for i=1:length(Signal)
-        %Détermine le numéro de table du signal d'intérêt à partir du fichier
+        %DÃ©termine le numÃ©ro de table du signal d'intÃ©rÃªt Ã  partir du fichier
         %de calibration
         tempSignal=cell2mat(Signal(i));
         s=['numSignal=find(strcmp(chan_name(1,:),',char(39),tempSignal,char(39),')==1);'];eval(s);
         clear s
         
-        %Va chercher les données dans la table du signal d'intérêt
+        %Va chercher les donnÃ©es dans la table du signal d'intÃ©rÃªt
         s=['GroupData.',tempSignal,'(:,1:size(Table1,2),N)=Table',num2str(numSignal),'(1:1500,:);'];eval(s);
         clear s
         
@@ -73,8 +74,8 @@ while Question==1
     
     
     
-    Question=menu('Avez vous des fichiers à intégrer?','oui', 'non')
+    Question=menu('Avez vous des fichiers Ã  intÃ©grer?','oui', 'non')
 end %while
 
 [filename,pathname]=uiputfile('*.mat');
-s=['save(',char(39),[pathname,filename],char(39),',',char(39),'GroupData',char(39),')'];eval(s); %Problème!! Je ne peux pas overwriter
+s=['save(',char(39),[pathname,filename],char(39),',',char(39),'GroupData',char(39),',''-v7.3'')'];eval(s); %ProblÃ¨me!! Je ne peux pas overwriter
