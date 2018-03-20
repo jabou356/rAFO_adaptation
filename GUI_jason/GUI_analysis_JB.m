@@ -128,7 +128,7 @@ function Remove_bad_superpose_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 data = load('Table_data.mat');
 
-Signal = input('Which signals would you like to show for validation?{''Sig1'',''Sig2'',''etc''}');
+Signal = input('Which signals would you like to show for validation?{''ENCO'',''CONS_F'',''etc''}');
 
 CTRL = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 0);
 FF = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 1);

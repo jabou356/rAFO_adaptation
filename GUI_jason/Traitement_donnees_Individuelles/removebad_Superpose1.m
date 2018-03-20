@@ -26,8 +26,11 @@ for isignal=1:numchan
     validnum(isignal)=find(strcmp(data.chan_name,signal{isignal})==1);
     
     %Déterminer la limite supérieure et inférieure du signal pour les axes
-    top(isignal)=max(max(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
-    bottom(isignal)=min(min(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
+    top(isignal)=max(cellfun(@(x)(max(x(:,validnum(isignal)))),data.Table));
+    bottom(isignal)=min(cellfun(@(x)(min(x(:,validnum(isignal)))),data.Table));
+    
+   % top(isignal)=max(max(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
+    %bottom(isignal)=min(min(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
     
 end
 
@@ -35,14 +38,14 @@ figure(1)
 clf
 
 %% Initialise the graph
-for isignal=1:numchan % Plot each signal
+for isignal=numchan:-1:1 % Plot each signal
     
     subplot(numchan+1,1,isignal) %numchan2+1
-    h(cycles,isignal)=plot(data.(['Table' num2str(validnum(isignal))])(:,cycles));
+    hold on
+    h(cycles,isignal)=cellfun(@(x)(plot(x(:,validnum(isignal)))),data.Table(cycles));
     
     set(h(cycles,isignal),'color','b');
     
-    hold on;
     
     a=axis;
     axis([a(1) a(2) bottom(isignal) top(isignal)])
@@ -70,7 +73,7 @@ if sum(strcmp(varargin, 'flagMean')) == 1
 for icycle=1:length(cycles)
     
     subplot(numchan+1,1,numchan+1)
-    h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table1(:,cycles(icycle))));
+    h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table{cycles(icycle)}(:,1)));
     hold on
     
     set(h(cycles(icycle),numchan+1),'color','b','marker','o');
