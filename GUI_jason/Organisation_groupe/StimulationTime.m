@@ -5,14 +5,12 @@ function [ stimtiming ] = StimulationTime(FF1,POST1,CONS_F)
 
 n=length(FF1);
 
-stimtiming(1:397,1:30)=nan;
-
-for i=1:n
+for isubject=1:n
     k=0;
-    for j=FF1(i):POST1(i)-1
+    for istride=FF1(isubject):POST1(isubject)-1
         k=k+1;
         
-        stimtiming(k,i)=find(CONS_F(:,j,i)==min(CONS_F(:,j,i)));
+        stimtiming{isubject}(k)=find(CONS_F{isubject}{istride}==min(CONS_F{isubject}{istride}));
         
     end
 end

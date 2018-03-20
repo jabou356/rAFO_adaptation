@@ -3,45 +3,30 @@
 function [FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(Cycle_Table,CONS_F)
 
     
-    n=find(isnan(Cycle_Table(1,1,:))==1);
-    if n>0
-        n=n(1)-1;
-    else
-        n=30
-    end
-    
-    for i=1:n
-        FFbegin=find(Cycle_Table(5,:,i)==1);
-        temp=find(isnan(Cycle_Table(5,:,i))==1);
-        
-        if temp>0
+   n=length(Cycle_Table);
+   
+    for isubject=1:n
+        FF=find(Cycle_Table{isubject}(5,:)==1);
+           
+        fin(isubject)=size(Cycle_Table{isubject},2);
             
-            fin(i)=temp(1)-1;
+      
+        if length(FF)>1
+            
+            FF1(isubject)=FF(1);
+            POST1(isubject)=FF(end)+1;
             
         else
-            
-            fin(i)=size(Cycle_Table(5,:,i),2);
-            
+            FF1(isubject)=nan;
+            POST1(isubject)=nan;
         end
         
-        temp=find(FFbegin>1);
-        
-        if temp>0
-            
-            FF1(i)=FFbegin(1);
-            POST1(i)=FFbegin(end)+1;
-            
-        else
-            FF1(i)=nan;
-            POST1(i)=nan;
-        end
-        
-        temp=find(Cycle_Table(:,4)==1);
+        temp=find(Cycle_Table{isubject}(4,:)==1);
     
     if temp>0
-        RFLX(i)=temp;
+        RFLX{isubject}=temp;
     else
-        RFLX(i)=nan;
+        RFLX{isubject}=nan;
     end
     
     
@@ -50,8 +35,9 @@ function [FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(Cycle_Table,CONS_
     if exist('CONS_F')
         stimtiming=StimulationTime(FF1, POST1, CONS_F);
     else
-        stimtiming=nan
+        stimtiming=nan;
     end
+
         
     
     

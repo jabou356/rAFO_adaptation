@@ -16,7 +16,7 @@ if Question==1
     load([pathname,filename])
     
     % Détermine le nombre de sujet déjà entré dans le fichier (Max n=30)
-    N = size(GroupData.Signal{1},3);
+    N = length(GroupData.Signal{1});
     %s=['tempN=find(isnan(GroupData.',cell2mat(Signal(1)),'(1,1,:))==1)'];eval(s);
      %clear s ;
     %N=tempN(1)-1;
