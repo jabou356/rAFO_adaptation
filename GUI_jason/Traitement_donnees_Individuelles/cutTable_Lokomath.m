@@ -5,8 +5,12 @@
 %Modifiée par Jason: 10 juillet 2012: add chan_gain ligne 136 et max cycle
 %lenght 2000 ligne 129
 
+% Modifié par Jason: 19 mars 2018. Enlever les Nan. Faire un cell array au
+% lieu de Table1, Table2, etc.
+
 
 function cutTable_Lokomath 
+%dbstop if error
 
 %% decouper cycles
 load('combined_data');
@@ -19,10 +23,6 @@ ftrigChannel=fdata(:,Sync_channel);
  validnum(2)=find(strcmp(chan_name,'HS')==1);
  validnum(3)=find(strcmp(chan_name,'COUPLE')==1);
 
-% Fc=10;
-% order=2;
-% [b,a] = butter(order,Fc/500);
-% ftrigChannel=filtfilt(b,a,trigChannel);
 
 %On détermine le minimum du signal
 minimum=min(ftrigChannel);
@@ -30,7 +30,6 @@ maximum=max(ftrigChannel);
 
 %On définit la bande d'analyse
 ftrigChannel=(ftrigChannel-minimum)/maximum;
-band_analyse=0.50*abs(maximum-minimum);
 
 %On decime le signal pour accélérer le processus
 temp=ftrigChannel;
@@ -49,7 +48,7 @@ while strcmp(choix_refaire,'oui')
     
     %Définition du seuil de détection, de la durée d'un cycle et du début
     %de la prériode d'analyse 10000=sampling rate * 10 secondes
-    figure(1);
+    figure(1)
     clf
     if 10000/5<length(signal)
         debut_signal=round(length(signal)/10);
@@ -57,24 +56,24 @@ while strcmp(choix_refaire,'oui')
         if fin_signal>length(signal)
             fin_signal=length(signal);
         end
-        plot(signal(debut_signal:fin_signal));
+        plot(signal(debut_signal:fin_signal))
     else
-        plot(signal(1:end));
+        plot(signal(1:end))
     end
 
     %Définition du seuil
-    title('Definir le seuil de détection');
+    title('Definir le seuil de détection')
     [x,seuil]=ginput(1);
     
     %Définition de la durée d'un cycle
-    title('Definir la durée d''un cycle (Cliquer le début)');
+    title('Definir la durée d''un cycle (Cliquer le début)')
     [x(1),y]=ginput(1);
-    title('Definir la durée d''un cycle (Cliquer la  fin)');
+    title('Definir la durée d''un cycle (Cliquer la  fin)')
     [x(2),y]=ginput(1);
     duree_cycle=round(x(2)-x(1));
     
     %Définition du point de départ
-    title('Definir le point de depart');
+    title('Definir le point de depart')
     
 
     
@@ -157,7 +156,7 @@ hold on
 title('COUPLE')
 end
 
-Choix_offset=menu('Do you want to create an offset of the HS position','Yes','No')
+Choix_offset = menu('Do you want to create an offset of the HS position','Yes','No');
 
 if Choix_offset==1
     title('put the ginput where you would like the stride end')
@@ -183,50 +182,49 @@ numchan=size(fdata,2);
 h=waitbar(0,'please wait');
 vector_length=2000; %max(Cycle_Table(:,2)-Cycle_Table(:,1))+1;%max duration of a gait cycle
 k=0;
-for j=1:numchan
-        waitbar(j/numchan,h,['processing ',chan_name(j)]);
-    s=['Table',num2str(j),'=[];'];eval(s); %creates an empty table
-    for i=1:size(Cycle_Table,1)
-        the_onset=Cycle_Table(i,1);
-        the_end=Cycle_Table(i,2);
-        temp=fdata(the_onset:the_end,j)*chan_gain(j); %channel(j) %****ATTENTION
-        if size(temp,1)<vector_length
-            temp(end+1:vector_length)=nan;
-        else
-            temp=temp(1:vector_length);
-        end;
-        s=['Table',num2str(j),'=[Table',num2str(j),',temp];'];eval(s); %adds new cycle to table
-    end; %for i    
-end; %for j
+
+for istride=size(Cycle_Table,1):-1:1
+    waitbar(istride/size(Cycle_Table,1),h);
+    for ichan=1:numchan
+           
+        the_onset=Cycle_Table(istride,1);
+        the_end=Cycle_Table(istride,2);
+               
+        Table{istride}(:,ichan) = fdata(the_onset:the_end,ichan)*chan_gain(ichan);
+
+    end %for ichan    
+end %for istride
+
 close(h);
 
 %% create reflex indexes
 Cycle_Table(:,4)=0; %fourth column is reflex cycle or not
 
 if ISRFLX_channel>0 %if there are reflexes
-    s=['temp_Table=Table',num2str(ISRFLX_channel),';'];eval(s);
-    for i=1: size(temp_Table,2)
-        if max(temp_Table(detect_onset:detect_offset,i)>detect_level)
-            Cycle_Table(i,4)=1;
-        end;
-        %k=waitforbuttonpress;
-    end;
-end;
+        
+    for istride= size(Cycle_Table,1):-1:1
+        
+        if max(abs(Table{istride}(:,ISRRFLX_channel)))>detect_level %  By pass detect_onset, detect offset. S'il y a un reflexe mal placé, je veux le savoir
+            Cycle_Table(istride,4)=1;
+        end
+    end
+    
+end
 
 %% create FF indexes
 Cycle_Table(:,5)=0; %fifth column is force field cycle or not
 
 if ISFF_channel>0 %if there are FF
-    s=['temp_Table=abs(Table',num2str(ISFF_channel),')',';'];eval(s);
-    for i=1: size(temp_Table,2)
-        if max(temp_Table(FFdetect_onset:FFdetect_offset,i)>FFdetect_level)
-            Cycle_Table(i,5)=1;
-        end;
-        %k=waitforbuttonpress;
-    end;
-end;
+    
+    for istride= size(Cycle_Table,1):-1:1
+        
+        if max(abs(Table{istride}(:,ISFF_channel)))>FFdetect_level % bypass FFdetect_onset et FFdetect_offset. Dans fichier de calibration, c,est tout le cycle
+            Cycle_Table(istride,5)=1;
+        end
+    end
+end
 
 
 
 %% save tables & stimpos
-save('Table_data','Table*','Cycle_Table','numchan','chan_name');
+save('Table_data','Table','Cycle_Table','numchan','chan_name');
