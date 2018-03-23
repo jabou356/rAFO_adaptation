@@ -258,12 +258,12 @@ function Group_Ankle_Kinematic_Analysis_timenorm_Callback(hObject, eventdata, ha
 load([pn,fn],'-mat');
 
 
-[ENCO,baseline2,cycleID,BASELINE2end,CHAMPend,POSTend,deltaENCO,MaxDorsiError,MaxPlantError,meanABSError,meanSIGNEDError,meanUndershoot,percentUndershoot,meanOvershoot,percentOvershoot,dureeswing,peakDorsi,peakPlant,MaxDorsiErrortiming,MaxPlantErrortiming,peakDorsitiming,peakPlanttiming,CoG, CoGrelatif, normPFC]=ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO);
+[ENCO,baseline2,cycleID,BASELINE2end,CHAMPend,POSTend,deltaENCO,MaxDorsiError,MaxPlantError,meanABSError,meanSIGNEDError,meanUndershoot,percentUndershoot,meanOvershoot,percentOvershoot,dureeswing,peakDorsi,peakPlant,MaxPlantErrortiming,peakDorsitiming,peakPlanttiming,CoG, CoGrelatif, normPFC]=ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO);
 
 clear GroupData
 
 [filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO');
-save(filename,'ENCO','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaENCO','MaxDorsiError','MaxPlantError','meanABSError','meanSIGNEDError','meanUndershoot','meanOvershoot', 'percentUndershoot', 'percentOvershoot','dureeswing', 'peakDorsi', 'peakPlant', 'MaxDorsiErrortiming', 'MaxPlantErrortiming', 'peakDorsitiming', 'peakPlanttiming','CoG','CoGrelatif','normPFC'); 
+save(filename,'ENCO','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaENCO','MaxDorsiError','MaxPlantError','meanABSError','meanSIGNEDError','meanUndershoot','meanOvershoot', 'percentUndershoot', 'percentOvershoot','dureeswing', 'peakDorsi', 'peakPlant', 'MaxPlantErrortiming', 'peakDorsitiming', 'peakPlanttiming','CoG','CoGrelatif','normPFC'); 
 
 disp('AnalENCO saved')
 
