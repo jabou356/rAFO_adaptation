@@ -2,43 +2,49 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
 
 
     load('CyclesCritiques.mat')
-    n=find(isnan(Cycle_Table(1,1,:))==1);
-    if n>0
-        n=n(1)-1;
-    else
-        n=30
-    end
+    
+    N = length(Cycle_Table);
+  
     
     question=menu('Avez-vous déjà un fichier de synchro?','oui','non');
     
     if question==2
-        x=1;
-               stimtimingSync(1:300,1:30)=nan;
+        x=1;       
     elseif question==1
         load('SyncData.mat')
         x=size(SyncTiming,1)+1;
     end
     
-    for i=x:n
+    for isubject=x:N
         figure(1)
         clf
         
-        if FF1(i)>0
+        if FF1(isubject)>0
             
-            for j=1:FF1(i)-1
+            for istride=1:FF1(isubject)-1
                 % data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
-                if Cycle_Table(3,j,i)==1
+                if Cycle_Table{isubject}(3,istride) == 1
                     
-                    plot(data(500:end-1,j,i),'b')
+                    plot(data{isubject}{istride}(500:end-1),'b')
                     hold on
                     
                 end
             end
             
-            for j=FF1(i):POST1(i)-1
+            for istride=POST1(isubject):fin(isubject)
                 %data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
-                if Cycle_Table(3,j,i)==1
-                    plot(data(500:end-1,j,i),'r')
+                if Cycle_Table{isubject}(3,istride)==1
+                    
+                    plot(data{isubject}{istride}(500:end-1),'r')
+                    hold on
+                    
+                end
+            end
+            
+            for istride=FF1(isubject):POST1(isubject)-1
+                %data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
+                if Cycle_Table{isubject}(3,istride)==1
+                    plot(data{isubject}{istride}(500:end-1),'r')
                     hold on
                     
                 end
@@ -46,10 +52,10 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
             
         else
             
-            for j=1:fin(i)-1
+            for istride=1:fin(isubject)
                 % data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
-                if Cycle_Table(3,j,i)==1
-                    plot(data(500:end-1,j,i),'b')
+                if Cycle_Table{isubject}(3,istride) == 1
+                    plot(data{isubject}{istride}(500:end-1),'b')
                     hold on
                     
                 end
@@ -58,27 +64,27 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
         
         
         temp=ginput(1);
-        SyncThreshold(i)=temp(2);
+        SyncThreshold(isubject)=temp(2);
         
-        for j=1:fin(i)
+        for istride=1:fin(isubject)
             
-            if Cycle_Table(3,j,i)==1
-                temp=find((data(500:end-1,j,i)<SyncThreshold(i))&(diff(data(500:end,j,i))<0));
-                if not(isempty(temp))
-                    SyncTiming(i,j)=temp(1)+499;
+            if Cycle_Table{isubject}(3,istride) == 1
+                temp=find((data{isubject}{istride}(500:end-1)<SyncThreshold(isubject))&(diff(data{isubject}{istride}(500:end))<0));
+                if ~isempty(temp)
+                    SyncTiming{isubject}(istride)=temp(1)+499;
                 else
-                    SyncTiming(i,j)=0;
+                    SyncTiming{isubject}(istride)=nan;
                 end
                 
             else
-                    SyncTiming(i,j)=0;
+                    SyncTiming{isubject}(istride)=nan;
             end
             
         end
         
 
-        for j=1:POST1(i)-FF1(i)
-            stimtimingSync(j,i)=stimtiming(j,i)-SyncTiming(i,FF1(i)+j-1);
+        for istride=1:POST1(isubject)-FF1(isubject)
+            stimtimingSync{isubject}(istride)=stimtiming{isubject}(istride)-SyncTiming{isubject}(FF1(isubject)+istride-1);
         end
         
     end
