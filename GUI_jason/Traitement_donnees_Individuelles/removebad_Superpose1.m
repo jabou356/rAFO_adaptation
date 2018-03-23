@@ -4,11 +4,7 @@ function bad_cycles = removebad_Superpose1( data, signal, cycles, type, varargin
 % Lorsque cette fonction est utilisé dans un fichier de groupe, il y a
 % seulement un signal
 if strcmp(type, 'Group')
-    temp=data;
-    clear data
-    data.Table1=temp;
     data.chan_name=signal;
-    clear temp
     
     if sum(strcmp(varargin, 'flagDuree')) == 1    
     data.Cycle_Table(cycles,1) = 1;
@@ -26,8 +22,15 @@ for isignal=1:numchan
     validnum(isignal)=find(strcmp(data.chan_name,signal{isignal})==1);
     
     %Déterminer la limite supérieure et inférieure du signal pour les axes
+    if iscell(data.Table)
     top(isignal)=max(cellfun(@(x)(max(x(:,validnum(isignal)))),data.Table));
     bottom(isignal)=min(cellfun(@(x)(min(x(:,validnum(isignal)))),data.Table));
+    elseif isnumeric(data.Table)
+        
+    top(isignal) = max(max(data.Table(:,cycles)));
+    bottom(isignal) = min(min(data.Table(:,cycles)));
+
+    end
     
    % top(isignal)=max(max(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
     %bottom(isignal)=min(min(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
@@ -42,7 +45,12 @@ for isignal=numchan:-1:1 % Plot each signal
     
     subplot(numchan+1,1,isignal) %numchan2+1
     hold on
+    if iscell(data.Table)
     h(cycles,isignal)=cellfun(@(x)(plot(x(:,validnum(isignal)))),data.Table(cycles));
+    elseif isnumeric(data.Table)
+        h(cycles,isignal)=plot(data.Table(:,cycles));
+    end
+        
     
     set(h(cycles,isignal),'color','b');
     
@@ -73,8 +81,12 @@ if sum(strcmp(varargin, 'flagMean')) == 1
 for icycle=1:length(cycles)
     
     subplot(numchan+1,1,numchan+1)
-    h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table{cycles(icycle)}(:,1)));
     hold on
+    if iscell(data.Table)
+    h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table{cycles(icycle)}(:,1)));
+    elseif isnumeric(data.Table)
+        h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table(:,cycles(icycle))));
+    end
     
     set(h(cycles(icycle),numchan+1),'color','b','marker','o');
     
