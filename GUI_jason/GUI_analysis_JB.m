@@ -379,7 +379,7 @@ else
     AnalTA=[];
 end
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn,AnalTA)
+[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn,AnalTA);
 
 save([pn, 'AnalRBITA.mat'], 'AnalTA'); 
 

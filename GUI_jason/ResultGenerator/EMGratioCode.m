@@ -18,18 +18,18 @@ load([pn 'CyclesCritiques.mat']);
 
 for isujet=nsujets:-1:1
     %% Get the baseline cycles used for kinematic Analyses with valid EMG and compute baseline template
-    baselinecycles=find(not(isnan(meanABSError.baseline2{isujet}(BASELINE2end(isujet)-49:BASELINE2end(isujet))))...
-        & not(isnan(AnalTA.TA.baseline2{isujet}(1,BASELINE2end(isujet)-49:BASELINE2end(isujet))))');
+    baselinecycles=find(~isnan(meanABSError.baseline2{isujet}(BASELINE2end(isujet)-49:BASELINE2end(isujet)))...
+        & ~isnan(AnalTA.TA.baseline2{isujet}(1,BASELINE2end(isujet)-49:BASELINE2end(isujet))));
     baselinecycles=baselinecycles+BASELINE2end(isujet)-50;
     baselinelateTA(:,isujet)=mean(AnalTA.TA.baseline2{isujet}(:,baselinecycles),2);
     
     %% Get mean TA activity for the valid cycles during Fearly and late
-    FFearlycycles=find(not(isnan(AnalTA.TA.CHAMP{isujet}(1,2:11)))'...
+    FFearlycycles=find(not(isnan(AnalTA.TA.CHAMP{isujet}(1,2:11)))...
         & not(isnan(meanABSError.CHAMP{isujet}(2:11))));
     FFearlycycles=FFearlycycles+1;
     FFearlyTA(:,isujet)=mean(AnalTA.TA.CHAMP{isujet}(:,FFearlycycles),2);
     
-    FFlatecycles=find(not(isnan(AnalTA.TA.CHAMP{isujet}(1,CHAMPend(isujet)-49:CHAMPend(isujet))))'...
+    FFlatecycles=find(not(isnan(AnalTA.TA.CHAMP{isujet}(1,CHAMPend(isujet)-49:CHAMPend(isujet))))...
         & not(isnan(meanABSError.CHAMP{isujet}(CHAMPend(isujet)-49:CHAMPend(isujet)))));
     FFlatecycles=FFlatecycles+CHAMPend(isujet)-50;
     FFlateTA(:,isujet)=mean(AnalTA.TA.CHAMP{isujet}(:,FFlatecycles),2);
@@ -47,8 +47,8 @@ for isujet=nsujets:-1:1
         if GroupData.Cycle_Table{isujet}(3,istride)==1 && SyncTiming{isujet}(istride)<1000 && SyncTiming{isujet}(istride)>500
             
             
-                x=SyncTiming{isujet}(istride)-round(AnalTA.dureeswing.CHAMP{isujet}(k)*0.3):length(GroupData.CONS_F{isujet}(:,istride))-4;
-                y=GroupData.CONS_F{isujet}(x,istride)';
+                x=SyncTiming{isujet}(istride)-round(AnalTA.dureeswing.CHAMP{isujet}(k)*0.3):length(GroupData.CONS_F{isujet}{istride}(:))-4;
+                y=GroupData.CONS_F{isujet}{istride}(x)';
                 CONS_F{isujet}(:,k)=interp1(1:length(x),y,1:(length(x)-1)/1299:length(x));
             
             %% Find Peak Force Timing (PFC) for each stride
@@ -67,24 +67,24 @@ for isujet=nsujets:-1:1
     peakCONS_FtimingFFlate(isujet)=round(mean(peakCONS_Ftiming{isujet}(FFlatecycles)));
     
     %% Compute Total TAratio, TAratio BeforePFC and TAratio AfterPFC and their log2 transform
-    BeforePFCEarly(isujet)=mean(FFearlyratio{isujet}(1:peakCONS_FtimingFFearly(isujet)));
-    log2BeforePFCEarly(isujet)=mean(log2FFearlyratio{isujet}(1:peakCONS_FtimingFFearly(isujet)));
-    BeforePFCLate(isujet)=mean(FFlateratio{isujet}(1:peakCONS_FtimingFFlate(isujet)));
-    log2BeforePFCLate(isujet)=mean(log2FFlateratio{isujet}(1:peakCONS_FtimingFFlate(isujet)));
+    BeforePFCEarly(isujet)=mean(FFearlyratio(1:peakCONS_FtimingFFearly(isujet),isujet));
+    log2BeforePFCEarly(isujet)=mean(log2FFearlyratio(1:peakCONS_FtimingFFearly(isujet),isujet));
+    BeforePFCLate(isujet)=mean(FFlateratio(1:peakCONS_FtimingFFlate(isujet),isujet));
+    log2BeforePFCLate(isujet)=mean(log2FFlateratio(1:peakCONS_FtimingFFlate(isujet),isujet));
     
     % For AfterPFC and Total, we use nanmean because the RBI filter applied
     % before TA analysis code create nans at the end of each stride. Does
     % not affect BeforePFC because the beginning of this window (30% stride duration before TO) is not the
     % beginning of the stride (HC)
-    AfterPFCEarly(isujet)=nanmean(FFearlyratio{isujet}(peakCONS_FtimingFFearly(isujet):end));
-    log2AfterPFCEarly(isujet)=nanmean(log2FFearlyratio{isujet}(peakCONS_FtimingFFearly(isujet):end));
-    AfterPFCLate(isujet)=nanmean(FFlateratio{isujet}(peakCONS_FtimingFFlate(isujet):end));
-    log2AfterPFCLate(isujet)=nanmean(log2FFlateratio{isujet}(peakCONS_FtimingFFlate(isujet):end));
+    AfterPFCEarly(isujet)=nanmean(FFearlyratio(peakCONS_FtimingFFearly(isujet):end,isujet));
+    log2AfterPFCEarly(isujet)=nanmean(log2FFearlyratio(peakCONS_FtimingFFearly(isujet):end,isujet));
+    AfterPFCLate(isujet)=nanmean(FFlateratio(peakCONS_FtimingFFlate(isujet):end,isujet));
+    log2AfterPFCLate(isujet)=nanmean(log2FFlateratio(peakCONS_FtimingFFlate(isujet):end,isujet));
     
-    TotalEarly(isujet)=nanmean(FFearlyratio{isujet});
-    log2TotalEarly(isujet)=nanmean(log2FFearlyratio{isujet});
-    TotalLate(isujet)=nanmean(FFlateratio{isujet});
-    log2TotalLate(isujet)=nanmean(log2FFlateratio{isujet});
+    TotalEarly(isujet)=nanmean(FFearlyratio(:,isujet));
+    log2TotalEarly(isujet)=nanmean(log2FFearlyratio(:,isujet));
+    TotalLate(isujet)=nanmean(FFlateratio(:,isujet));
+    log2TotalLate(isujet)=nanmean(log2FFlateratio(:,isujet));
     
     
     

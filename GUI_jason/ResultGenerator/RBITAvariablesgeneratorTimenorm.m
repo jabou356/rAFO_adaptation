@@ -27,7 +27,7 @@ for isubject=x:n
         lastcycle=fin(isubject);
     end
     
-    for itrial=1:lastcycle
+    for istride=1:lastcycle
          k=k+1;
          
     if Cycle_Table{isubject}(3,istride)==1 && Cycle_Table{isubject}(4,istride)==0 ...
@@ -53,7 +53,7 @@ for isubject=x:n
             
         
               
-        AnalTA.cycleID.baseline2{isubject}(k)=itrial;
+        AnalTA.cycleID.baseline2{isubject}(k)=istride;
                 
     end
     AnalTA.BASELINE2end(isubject)=k;
@@ -61,7 +61,7 @@ for isubject=x:n
     tovalidate.Table=AnalTA.TA.baseline2{isubject};
     
     bad_cycles=removebad_Superpose1(tovalidate,{'TA'},...
-        1:size(Anal.TA.baseline2{isubject},2), 'Group', 'flagMean');
+        1:size(AnalTA.TA.baseline2{isubject},2), 'Group', 'flagMean');
     
     Cycle_Table{isubject}(3,AnalTA.cycleID.baseline2{isubject}(bad_cycles))=-1;
         
@@ -72,7 +72,7 @@ AnalTA.baseline2(:,isubject)=nanmean(AnalTA.TA.baseline2{isubject}(:,AnalTA.BASE
 %% CHAMP
  k=0;
     if isnan(FF1(isubject))==0
-    for itrial=FF1(isubject):POST1(isubject)-1
+    for istride=FF1(isubject):POST1(isubject)-1
            k=k+1;
          if Cycle_Table{isubject}(3,istride)==1 && Cycle_Table{isubject}(4,istride)==0 ...
             && SyncTiming{isubject}(istride)<1000 && SyncTiming{isubject}(istride)>500 
@@ -97,7 +97,7 @@ AnalTA.baseline2(:,isubject)=nanmean(AnalTA.TA.baseline2{isubject}(:,AnalTA.BASE
             
         
               
-        AnalTA.cycleID.CHAMP{isubject}(k)=itrial;
+        AnalTA.cycleID.CHAMP{isubject}(k)=istride;
           
     end    
     AnalTA.CHAMPend(isubject)=k;
@@ -105,7 +105,7 @@ AnalTA.baseline2(:,isubject)=nanmean(AnalTA.TA.baseline2{isubject}(:,AnalTA.BASE
     tovalidate.Table=AnalTA.TA.CHAMP{isubject};
     
     bad_cycles=removebad_Superpose1(tovalidate,{'TA'},...
-        1:size(Anal.TA.CHAMP{isubject},2), 'Group', 'flagMean');
+        1:size(AnalTA.TA.CHAMP{isubject},2), 'Group', 'flagMean');
     
     Cycle_Table{isubject}(3,AnalTA.cycleID.CHAMP{isubject}(bad_cycles))=-1;
     AnalTA.TA.CHAMP{isubject}(:,bad_cycles)=nan;
@@ -114,7 +114,7 @@ AnalTA.baseline2(:,isubject)=nanmean(AnalTA.TA.baseline2{isubject}(:,AnalTA.BASE
     %% POST
    if fin(isubject)-POST1(isubject)>1 
     k=0;
-    for itrial=POST1(isubject):fin(isubject)-1
+    for istride=POST1(isubject):fin(isubject)-1
          k=k+1;
            if Cycle_Table{isubject}(3,istride)==1 && Cycle_Table{isubject}(4,istride)==0 ...
             && SyncTiming{isubject}(istride)<1000 && SyncTiming{isubject}(istride)>500 
@@ -139,7 +139,7 @@ AnalTA.baseline2(:,isubject)=nanmean(AnalTA.TA.baseline2{isubject}(:,AnalTA.BASE
             
         
               
-        AnalTA.cycleID.POST{isubject}(k)=itrial;
+        AnalTA.cycleID.POST{isubject}(k)=istride;
            
     end
     
@@ -148,7 +148,7 @@ AnalTA.baseline2(:,isubject)=nanmean(AnalTA.TA.baseline2{isubject}(:,AnalTA.BASE
      tovalidate.Table=AnalTA.TA.POST{isubject};
     
     bad_cycles=removebad_Superpose1(tovalidate,{'TA'},...
-        1:size(Anal.TA.POST{isubject},2), 'Group', 'flagMean');
+        1:size(AnalTA.TA.POST{isubject},2), 'Group', 'flagMean');
     
     Cycle_Table{isubject}(3,AnalTA.cycleID.POST{isubject}(bad_cycles))=-1;
     AnalTA.TA.POST{isubject}(:,bad_cycles)=nan;
