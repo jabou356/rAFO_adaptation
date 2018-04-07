@@ -96,8 +96,15 @@ function Cut_Table_Lokomath_Callback(hObject, eventdata, handles)
 % hObject    handle to Cut_Table_Lokomath (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%% load config file
+[filename,pathfile]=uigetfile('*.*','Choisir fichier de calibration');
+config = load([pathfile,filename],'-mat');
 
-cutTable_Lokomath
+%% Load combined data file in the current folder
+load('combined_data');
+
+%% Cut and save tables
+cutTable_Lokomath(config, fdata);
 disp('Table_data saved')
 
 
@@ -117,7 +124,12 @@ function Combine_WinVisio_data_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-combine_data_WinVisio
+%% Load calibration
+[fn,pn]=uigetfile('*.mat','select the calibration file');
+config=load([pn,fn],'-mat');
+
+
+combine_data_WinVisio(config)
 disp('combined file saved')
 
 
