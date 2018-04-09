@@ -1,16 +1,12 @@
-%programme make_data_tables
-
-%this program validates gait cycles and creates tables
-
-%Modifiée par Jason: 10 juillet 2012: add chan_gain ligne 136 et max cycle
-%lenght 2000 ligne 129
-
-% Modifié par Jason: 19 mars 2018. Enlever les Nan. Faire un cell array au
-% lieu de Table1, Table2, etc.
-
-
 function cutTable_Lokomath(config,fdata) 
-
+%CUTTABLE_LOKOMATH: This function is used to cut continuous data vectors 
+%into separate strides based on the the selected Sync_Channel. Also create
+%Cycle_Table with key events (FF or Reflexes). 
+%   INPUT: Config file generated with XXX FUNCTION. Filtered data.
+%   OUTPUT: None. Table_data saved..
+%   
+%   Initially developed by Martin Noel and Laurent Bouyer. Modified by
+%   Jason Bouffard
 %% Select the signal to use to create an offset in the data synchronisation
 Offsetchan = {'ENCO','ENCO','HS','COUPLE'};
 DiffOffsetchan = [0 1 0 0];
