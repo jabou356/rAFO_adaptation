@@ -1,11 +1,14 @@
 function combine_data_WinVisio(config)
 %COMBINE_DATA_WINVISIO This function is used to combine multiple data files
 %extracted from Winvisio using Read_Winvisio_LB. Moreover, data are
-%filtered based on config files. 
+%filtered based on config files 
 %   INPUT: Config file generated with XXX FUNCTION. Data files are selected
 %   in the function
 %   OUTPUT: None. Combined raw and filtered data are saved in
 %   combined_data.mat in the current directory.
+%   
+%   Initially developed by Martin Noel and Laurent Bouyer. Modified by
+%   Jason Bouffard
 
 %% initiate loop variables 
 count=0; %number of files transformed
