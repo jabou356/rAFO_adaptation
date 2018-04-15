@@ -1,71 +1,56 @@
 
-% Programme servant à combiner les données afin de créer des populations
 function GroupData = GroupTablesGenerator
+%GROUPTABLESGENERATOR This function is used to combine multiple subjects'
+%data. Data must have been cut into Tables and validated. 
+%   No input, all necessary files are loaded in the function
 
-clear all
-clc
-
-
-Question=menu('Avez-vous déjà un fichier de groupe?','oui','non');
-Signal=input('Quel signal voulez-vous intégrer? ');
+Question = menu('Do you already have a GroupData file?','Yes','No');
+Signal = input('Which signals would you like to integrate? Write {''SignalName1'', ''SignalName2'', ..., ''SignalNameN''');
 
 
 if Question==1
-    %Si vous avez un fichier de groupe, chargez le fichier de groupe
-    [filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier de groupe')
-    load([pathname,filename])
+    %If you already have a GroupData file, load it
     
-    % Détermine le nombre de sujet déjà entré dans le fichier (Max n=30)
+    [filename,pathname] = uigetfile('*.mat','Select your GroupData file');
+    load([pathname,filename]);
+    
+    % Determine the number of participants already included in GroupData
     N = length(GroupData.Signal{1});
-    %s=['tempN=find(isnan(GroupData.',cell2mat(Signal(1)),'(1,1,:))==1)'];eval(s);
-     %clear s ;
-    %N=tempN(1)-1;
-  
     
 else
-    
-%     for i=1:length(Signal)
-%     %Si vous n'avez pas de fichier de groupe, en crée un
-%     tempSignal=cell2mat(Signal(i));
+    % If you create a new GroupData file, initiate it
     N=0;
-%     s=['GroupData.',tempSignal,'(1:1500,1:1200,1:30)=nan'];eval(s);
-%      clear s 
-%     end
-    
-%     GroupData.Cycle_Table(1:5,1:1200,1:30)=nan;
    
 end
 
-Question=menu('Avez vous des fichiers à intégrer?','oui', 'non');
+Question=menu('Do you have new subjects to integrate to GroupData?','Yes', 'No');
 
-while Question==1
+while Question==1 %'Do you have new subjects to integrate to GroupData?','Yes', 'No'
     
-    clear Table chan_name Cycle_Table ISRFLX_channel numchan num* s templenght onsetFF
+    % Increment subject index
     N=N+1;
     
-    % Va chercher le fichier de donnée du sujet N
-    [filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier contenant votre table de données')
-    load([pathname,filename])
+    % Load your subject's data
+    [filename,pathname]=uigetfile('*.mat','Select your Subject Table_data.mat file');
+    load([pathname,filename]);
       
     for isignal=1:length(Signal)
-        %Détermine le numéro de table du signal d'intérêt à partir du fichier
-        %de calibration
-        numSignal=find(strcmp(chan_name(1,:),Signal{isignal}));
+        % For each Signal, find the Table with chan_name == Signal
+        numSignal=find(strcmp(config.chan_name(1,:),Signal{isignal}));
         
-        %Va chercher les données dans la table du signal d'intérêt
+        % Integrate Participant's data for the signal to GroupData.Signal 
         GroupData.(Signal{isignal}){N} = cellfun(@(x)({x(:,numSignal)}),Table);
          
                 
     end
     
+    % Integrate Cycle_Table (including trials duration, valid/nonvalid,
+    % FF/noFF, etc.
     GroupData.Cycle_Table{N}=Cycle_Table(:,:)';
     
-    
+    Question = menu('Do you have new subjects to integrate to GroupData?','Yes', 'No');
+end %while Question
 
-    
-    
-    Question = menu('Avez vous des fichiers à intégrer?','oui', 'non');
-end %while
-
+%% When all participants are integrated, save the file
 [filename,pathname]=uiputfile('*.mat');
-s=['save(',char(39),[pathname,filename],char(39),',',char(39),'GroupData',char(39),',''-v7.3'')'];eval(s); %Problème!! Je ne peux pas overwriter
+save([pathname,filename],'GroupData','-v7.3'); %-v7.3: compress file

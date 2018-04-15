@@ -1,8 +1,11 @@
 function [ stimtiming ] = StimulationTime(FF1,POST1,CONS_F)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%STIMULATIONTIME This function is used to find the timing of the force
+%field within each stride
+%   INPUT: Vectors indicating the first (FF1) and last (POST1) (+1) stride with Force
+%   fields for each subject
+%   CONS_F: Signal containing force command
 
-
+% Determine the number of participants
 n=length(FF1);
 
 for isubject=1:n
@@ -10,7 +13,9 @@ for isubject=1:n
     for istride=FF1(isubject):POST1(isubject)-1
         k=k+1;
         
-        stimtiming{isubject}(k)=find(CONS_F{isubject}{istride}==min(CONS_F{isubject}{istride}));
+        % for each subject and each stride, find the moment with the peak
+        % force command
+        stimtiming{isubject}(k)=find(abs(CONS_F{isubject}{istride})==max(abs(CONS_F{isubject}{istride})));
         
     end
 end

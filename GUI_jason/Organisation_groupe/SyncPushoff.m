@@ -1,29 +1,48 @@
 function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
-
-
+% SYNCPUSHOFF: This function synchronize all data on the middle of the 
+% pushoff based on ankle kinematic data. (Introduced in Bouffard et al 2014
+% JNeuroscience)
+%   Input: CYCLE_TABLE: indicate valid/nonvalid, stride duration, FF/NoFF
+    % DATA: contains data used for synchronization
+    
     load('CyclesCritiques.mat')
     
+    % Determine the number of participants
     N = length(Cycle_Table);
   
     
-    question=menu('Avez-vous déjà un fichier de synchro?','oui','non');
+    question=menu('Do you already have a file with Synchronization information?','Yes','No');
     
-    if question==2
-        x=1;       
-    elseif question==1
+         
+    if question==1
+        % If you already have a SyncData, load it
+        
         load('SyncData.mat')
         x=size(SyncTiming,1)+1;
+        
+    elseif question==2
+        % If you don't  have a SyncData, initialize it
+        
+        x=1;  
     end
     
+    %% For each subject plot and select threshold
+    % initialize the figure
+    figure('units','normalized','outerposition',[0 0 1 1], ...
+    'Name', 'Select the threshold closest to the middle of the pushoff, for which a maximal amount of strides will cross')
+
     for isubject=x:N
-        figure(1)
         clf
         
+        % If there is at least one stride with a force field, plot
+        % baseline, FF and POST in different colors
         if FF1(isubject)>0
             
             for istride=1:FF1(isubject)-1
-                % data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
+                % Plot baseline cycles in blue
                 if Cycle_Table{isubject}(3,istride) == 1
+                    % Plot data from 500 to the end to avoid initial
+                    % plantar flexion 
                     
                     plot(data{isubject}{istride}(500:end-1),'b')
                     hold on
@@ -32,18 +51,23 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
             end
             
             for istride=POST1(isubject):fin(isubject)
-                %data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
+                % Plot POST cycles in green
                 if Cycle_Table{isubject}(3,istride)==1
+                    % Plot data from 500 to the end to avoid initial
+                    % plantar flexion 
                     
-                    plot(data{isubject}{istride}(500:end-1),'r')
+                    plot(data{isubject}{istride}(500:end-1),'g')
                     hold on
                     
                 end
             end
             
             for istride=FF1(isubject):POST1(isubject)-1
-                %data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
+                 % Plot FF cycles in green
                 if Cycle_Table{isubject}(3,istride)==1
+                    % Plot data from 500 to the end to avoid initial
+                    % plantar flexion 
+                    
                     plot(data{isubject}{istride}(500:end-1),'r')
                     hold on
                     
@@ -52,9 +76,13 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
             
         else
             
+            % If there is no  stride with a force field, plot all strides
+            % in blue
             for istride=1:fin(isubject)
-                % data(:,j,i)=data(:,j,i)-data(1,j,i); % pour enlever le premier point
                 if Cycle_Table{isubject}(3,istride) == 1
+                    % Plot data from 500 to the end to avoid initial
+                    % plantar flexion
+                    
                     plot(data{isubject}{istride}(500:end-1),'b')
                     hold on
                     
@@ -62,21 +90,31 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
             end
         end
         
+        % Select the threshold closest to the middle of the pushoff, for which a maximal amount of strides will cross
+        [~,SyncThreshold(isubject)] = ginput(1);
         
-        temp=ginput(1);
-        SyncThreshold(isubject)=temp(2);
         
         for istride=1:fin(isubject)
             
+            %If the stride is valid
             if Cycle_Table{isubject}(3,istride) == 1
+                
+                % For each stride, determine the instant at which data cross the
+                % threshold with a negative velocity.
                 temp=find((data{isubject}{istride}(500:end-1)<SyncThreshold(isubject))&(diff(data{isubject}{istride}(500:end))<0));
+                
                 if ~isempty(temp)
+                    % If the stride cross SyncThreshold with a negative
+                    % velocity SyncTiming = the instant + 499 (because
+                    % plots begin at 500)
                     SyncTiming{isubject}(istride)=temp(1)+499;
                 else
+                    % Else, set as nan
                     SyncTiming{isubject}(istride)=nan;
                 end
                 
             else
+                    % If the stride is not valid , set as nan
                     SyncTiming{isubject}(istride)=nan;
             end
             
@@ -84,11 +122,14 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
         
 
         for istride=1:POST1(isubject)-FF1(isubject)
+            % Correct the instant with peakFF for the synchronization
+            % timing
             stimtimingSync{isubject}(istride)=stimtiming{isubject}(istride)-SyncTiming{isubject}(FF1(isubject)+istride-1);
         end
         
     end
         
+    % Save synchronized stimtiming in CyclesCritiques
     save('CyclesCritiques','FF1','POST1','fin','RFLX','stimtiming','stimtimingSync')
         
         
