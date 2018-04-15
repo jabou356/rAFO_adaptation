@@ -197,8 +197,8 @@ function Synchro_Pushoff_Callback(hObject, eventdata, handles)
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
 
-[SyncTiming, SyncThreshold] = SyncPushoff(GroupData.Cycle_Table,GroupData.ENCO);
-save('SyncData','SyncTiming','SyncThreshold'); 
+[SyncTiming, SyncThreshold, stimtimingSync] = SyncPushoff(GroupData.Cycle_Table,GroupData.ENCO);
+save('SyncData','SyncTiming','SyncThreshold', 'stimtimingSync'); 
 disp('SyncData saved')
 
 
@@ -213,13 +213,13 @@ function Idendification_Cycles_Callback(hObject, eventdata, handles)
 load([pn,fn],'-mat');
 
 if isfield(GroupData,'CONS_F')
-[FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table,GroupData.CONS_F);
+[CTRLlast, FFlast, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table,GroupData.CONS_F);
 else
-[FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table);
+[CTRLlast, FFlast, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table);
 end
 
 
-save('CyclesCritiques','FF1','POST1','fin','RFLX','stimtiming'); 
+save('CyclesCritiques','CTRLlast','FFlast','fin','RFLX','stimtiming'); 
 disp('CyclesCritiques saved')
 
 
@@ -269,13 +269,17 @@ function Group_Ankle_Kinematic_Analysis_timenorm_Callback(hObject, eventdata, ha
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
 
+SyncData = load([pn,'SyncData.mat']);
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
 
-[ENCO,baseline2,cycleID,BASELINE2end,CHAMPend,POSTend,deltaENCO,MaxDorsiError,MaxPlantError,meanABSError,meanSIGNEDError,meanUndershoot,percentUndershoot,meanOvershoot,percentOvershoot,dureeswing,peakDorsi,peakPlant,MaxPlantErrortiming,peakDorsitiming,peakPlanttiming,CoG, CoGrelatif, normPFC]=ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO);
+conditions = {'Baseline2', 'CHAMP', 'POST'};
 
-clear GroupData
+AnalENCO = ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO, conditions, criticalCycles, SyncData);
+
 
 [filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO');
-save(filename,'ENCO','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaENCO','MaxDorsiError','MaxPlantError','meanABSError','meanSIGNEDError','meanUndershoot','meanOvershoot', 'percentUndershoot', 'percentOvershoot','dureeswing', 'peakDorsi', 'peakPlant', 'MaxPlantErrortiming', 'peakDorsitiming', 'peakPlanttiming','CoG','CoGrelatif','normPFC'); 
+save(filename,'AnalENCO'); 
 
 disp('AnalENCO saved')
 
