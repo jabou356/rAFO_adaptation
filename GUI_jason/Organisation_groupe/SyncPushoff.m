@@ -1,4 +1,4 @@
-function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
+function [SyncTiming, SyncThreshold, stimtimingSync] = SyncPushoff(Cycle_Table,data)
 % SYNCPUSHOFF: This function synchronize all data on the middle of the 
 % pushoff based on ankle kinematic data. (Introduced in Bouffard et al 2014
 % JNeuroscience)
@@ -36,9 +36,9 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
         
         % If there is at least one stride with a force field, plot
         % baseline, FF and POST in different colors
-        if FF1(isubject)>0
+        if FFlast(isubject)>0
             
-            for istride=1:FF1(isubject)-1
+            for istride=1:CTRLlast(isubject)
                 % Plot baseline cycles in blue
                 if Cycle_Table{isubject}(3,istride) == 1
                     % Plot data from 500 to the end to avoid initial
@@ -50,7 +50,7 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
                 end
             end
             
-            for istride=POST1(isubject):fin(isubject)
+            for istride=FFlast(isubject)+1:fin(isubject)
                 % Plot POST cycles in green
                 if Cycle_Table{isubject}(3,istride)==1
                     % Plot data from 500 to the end to avoid initial
@@ -62,7 +62,7 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
                 end
             end
             
-            for istride=FF1(isubject):POST1(isubject)-1
+            for istride=CTRLlast(isubject)+1:FFlast(isubject)
                  % Plot FF cycles in green
                 if Cycle_Table{isubject}(3,istride)==1
                     % Plot data from 500 to the end to avoid initial
@@ -121,15 +121,14 @@ function [SyncTiming, SyncThreshold] = SyncPushoff(Cycle_Table,data)
         end
         
 
-        for istride=1:POST1(isubject)-FF1(isubject)
+        for istride=1:FFlast(isubject)-CTRLlast(isubject)
             % Correct the instant with peakFF for the synchronization
             % timing
-            stimtimingSync{isubject}(istride)=stimtiming{isubject}(istride)-SyncTiming{isubject}(FF1(isubject)+istride-1);
+            stimtimingSync{isubject}(istride)=stimtiming{isubject}(istride)-SyncTiming{isubject}(CTRLlast(isubject)+istride);
         end
         
     end
-        
-    % Save synchronized stimtiming in CyclesCritiques
-    save('CyclesCritiques','FF1','POST1','fin','RFLX','stimtiming','stimtimingSync')
+    
+    close all
         
         

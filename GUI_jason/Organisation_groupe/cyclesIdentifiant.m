@@ -1,4 +1,4 @@
-function [FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(Cycle_Table,CONS_F)
+function [CTRLlast, FFlast, fin, RFLX, stimtiming]=cyclesIdentifiant(Cycle_Table,CONS_F)
 %CYCLESIDENTIFIANT: This function extract critical cycles from Cycle_Table
 %   to facilitate further analyses
    
@@ -17,13 +17,13 @@ function [FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(Cycle_Table,CONS_
             % first stride with the force field and the first after force
             % field
             
-            FF1(isubject)=FF(1);
-            POST1(isubject)=FF(end)+1;
+            CTRLlast(isubject)=FF(1)-1;
+            FFlast(isubject)=FF(end);
             
         else
             % If there is no force field for the subject, set FF1 and POST1 as NaN            
-            FF1(isubject)=nan;
-            POST1(isubject)=nan;
+            CTRLlast(isubject)=nan;
+            FFlast(isubject)=nan;
         end
         
         %% Find the strides with reflexes (or catch/anticatch)
@@ -44,7 +44,7 @@ function [FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(Cycle_Table,CONS_
     
     %% If there is an CONS_F as input signal, run StimulationTime to find the timing of each FF within the stride
     if exist('CONS_F')
-        stimtiming=StimulationTime(FF1, POST1, CONS_F);
+        stimtiming=StimulationTime(CTRLlast, FFlast, CONS_F);
     else
         stimtiming=nan;
     end
