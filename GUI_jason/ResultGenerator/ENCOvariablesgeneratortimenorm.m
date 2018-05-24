@@ -39,7 +39,7 @@ for isubject=x:n
     for icond = 1 : length(conditions)
         
         k=0;
-        for istride=criticalCycles(icond)+1:criticalCycles(icond+1) % there is probably a way to vectorize this
+        for istride=criticalCycles(icond,isubject)+1:criticalCycles(icond+1,isubject) % there is probably a way to vectorize this
             k=k+1;
             
             if Cycle_Table{isubject}(3,istride)==1 && SyncData.SyncTiming{isubject}(istride) < length(data{isubject}{istride})
@@ -79,7 +79,7 @@ for isubject=x:n
             1:size(AnalENCO.ENCO.(conditions{icond}){isubject},2), 'Group', 'flagDuree', duree);
         
         % Set selected strides as non valid
-        Cycle_Table{isubject}(3,bad_cycles)=-1;
+        Cycle_Table{isubject}(3,AnalENCO.cycleID.(conditions{icond}){isubject}(bad_cycles))=-1;
         
         AnalENCO.ENCO.(conditions{icond}){isubject}(:,bad_cycles)=nan;
         
@@ -149,7 +149,7 @@ for isubject=x:n
         % timing error
         if strcmp(conditions{icond},'CHAMP')
             
-            for istride = 1: criticalCycles(icond+1) - criticalCycles(icond) 
+            for istride = 1: criticalCycles(icond+1,isubject) - criticalCycles(icond,isubject) 
 
                 weight=abs(AnalENCO.deltaENCO.CHAMP{isubject}(:,istride)).*[1:1000]';
                     
