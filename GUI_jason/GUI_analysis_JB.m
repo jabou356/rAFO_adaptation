@@ -395,13 +395,20 @@ else
     AnalTA=[];
 end
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn,AnalTA);
+SyncData = load([pn,'SyncData.mat']);
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+
+[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,conditions,criticalCycles,pn,AnalTA,SyncData);
 
 save([pn, 'AnalRBITA.mat'], 'AnalTA'); 
 
 disp('AnalRBITA saved')
 
-TAratiovariable = EMGratioCode(GroupData,AnalTA, pn);
+TAratiovariable = EMGratioCode(GroupData,AnalTA, criticalCycles, SyncData, pn);
 
 save([pn, 'TAratio.mat'], 'TAratiovariable'); 
 
