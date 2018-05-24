@@ -103,14 +103,14 @@ if sum(strcmp(varargin, 'flagMean')) == 1
         if iscell(data.Table)
             % plot mean value of each signal as an handle
             
-            h(cycles(icycle),length(signal)+1) = plot(cycles(icycle),nanmean(data.Table{cycles(icycle)}(:,1)));
+            h(cycles(icycle),length(signal)+otherplots) = plot(cycles(icycle),nanmean(data.Table{cycles(icycle)}(:,1)));
         elseif isnumeric(data.Table)
-            h(cycles(icycle),length(signal)+1) = plot(cycles(icycle),nanmean(data.Table(:,cycles(icycle))));
+            h(cycles(icycle),length(signal)+otherplots) = plot(cycles(icycle),nanmean(data.Table(:,cycles(icycle))));
             
         end
         
         % set all strides to valid (blue)
-        set(h(cycles(icycle),length(signal)+1),'color','b','marker','o');
+        set(h(cycles(icycle),length(signal)+otherplots),'color','b','marker','o');
         
     end
     
@@ -122,7 +122,7 @@ end
 count=0;
 over=0;
 
-while ~over
+while over~=1
     
     % Select bad cycles
     waitforbuttonpress;
@@ -169,7 +169,7 @@ while ~over
         
         %If the user selected no object (click in the white space), it is
         %over
-        over=1;
+        over=menu('Are you done selecting bad trials?','Yes','No');
         
     end %if
 end %while
