@@ -61,12 +61,13 @@ for isubject=x:n
                 AnalENCO.dureeswing.(conditions{icond}){isubject}(k)=nan;
                 
             end
-            
-        end
-        
+         
         % Note the stride # (from the initial stride of GroupData),
         % correspond to the analyzed stride)
         AnalENCO.cycleID.(conditions{icond}){isubject}(k)=istride;
+        end
+        
+        
         
         %% remove bad ENCO
         % The function will plot synchronized ENCO signal and analyzed
