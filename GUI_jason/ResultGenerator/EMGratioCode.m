@@ -37,11 +37,19 @@ for isujet=nsujets:-1:1
     k=criticalCycles(3,isujet)-criticalCycles(2,isujet);
     for istride=criticalCycles(3,isujet):-1:criticalCycles(2,isujet)+1
         if GroupData.Cycle_Table{isujet}(3,istride)==1 && SyncData.SyncTiming{isujet}(istride) < length(GroupData.CONS_F{isujet}{istride})
-                      
+                
+            
+                if max(SyncData.SyncTiming{isujet})>1 % if we use a SyncTiming
                 x=SyncData.SyncTiming{isujet}(istride)-round(AnalTA.dureeswing.CHAMP{isujet}(k)*0.3):length(GroupData.CONS_F{isujet}{istride}(:));
                 y=GroupData.CONS_F{isujet}{istride}(x)';
                 TAratio.CONS_F{isujet}(:,k)=interp1(1:length(x),y,1:(length(x)-1)/1299:length(x));
+                
+                else % if we use the first data point of the stride
             
+                x = 1:length(GroupData.CONS_F{isujet}{istride});
+                y = GroupData.CONS_F{isujet}{istride}; 
+                TAratio.CONS_F{isujet}(:,k)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+                end
             %% Find Peak Force Timing (PFC) for each stride
                 TAratio.peakCONS_Ftiming{isujet}(k)=round(find(TAratio.CONS_F{isujet}(:,k)==min(TAratio.CONS_F{isujet}(:,k)),1,'first'));
             

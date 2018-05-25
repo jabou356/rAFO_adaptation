@@ -46,11 +46,18 @@ for isubject=x:n
             % Duration of the analyzed period, for EMG, we extend the swing
             % phase duration by 30%
             AnalTA.dureeswing.(conditions{icond}){isubject}(k)=length(data{isubject}{istride})-SyncData.SyncTiming{isubject}(istride)+1;
-            x = 1 : round(AnalTA.dureeswing.(conditions{icond}){isubject}(k)*1.3);     
+            
+            if max(SyncData.SyncTiming{isubject})>1
+            x = 1 : round(AnalTA.dureeswing.(conditions{icond}){isubject}(k)*1.3);  
             y = data{isubject}{istride}(SyncData.SyncTiming{isubject}(istride)-round(AnalTA.dureeswing.(conditions{icond}){isubject}(k)*0.3):end);
              
             AnalTA.TA.(conditions{icond}){isubject}(:,k)=interp1(x,y,1:(length(x)-1)/(1299):length(x));
-                       
+            else
+            x = 1:length(data{isubject}{istride});
+            y = data{isubject}{istride}; 
+            AnalTA.TA.(conditions{icond}){isubject}(:,k)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+            end
+
             else 
             % If the trial is bad, set as Nan                  
             AnalTA.TA.(conditions{icond}){isubject}(:,k)=nan;             
