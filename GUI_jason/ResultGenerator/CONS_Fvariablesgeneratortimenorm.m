@@ -1,195 +1,118 @@
-function [CONS_F,peakCONS_F,peakCONS_Ftiming,onsetCONS_Ftiming,BASELINE2end,CHAMPend,POSTend,cycleID]=CONS_Fvariablesgeneratortimenorm(Cycle_Table,data)
-
-n=find(isnan(Cycle_Table(1,1,:))==1);
-if n>0
-    n=n(1)-1;
-else
-    n=30
-end
-
-load('SyncData.mat');
-load('CyclesCritiques.mat');
-
-question=menu('Avez-vous déjà un fichier AnalCONS_Ftimenorm?','oui','non');
-
-if question==2
-
-figure(1)
-CONS_F.baseline2(1:1000,1:588,1:30)=nan;
-CONS_F.CHAMP(1:1000,1:450,1:30)=nan;
-CONS_F.POST(1:1000,1:400,1:30)=nan;
-
-peakCONS_F.baseline2(1:588,1:30)=nan;
-peakCONS_F.CHAMP(1:450,1:30)=nan;
-peakCONS_F.POST(1:400,1:30)=nan;
-
-cycleID.baseline2(1:588,1:30)=nan;
-cycleID.CHAMP(1:450,1:30)=nan;
-cycleID.POST(1:400,1:30)=nan;
-
-peakCONS_Ftiming.baseline2(1:588,1:30)=nan;
-peakCONS_Ftiming.CHAMP(1:450,1:30)=nan;
-peakCONS_Ftiming.POST(1:400,1:30)=nan;
+function AnalCONS_F = CONS_Fvariablesgeneratortimenorm (Cycle_Table, data, conditions, criticalCycles, SyncData)
+%CONS_Ftimenormvariablesgenerator: This function generate all ankle kinematic
+%variables published in Bouffard et al 2014,2016 and 2018 on pain and Motor
+%learning.
+%   INPUT: Cycle_Table, indicates if strides are valid or not, if the have
+%   a force field or not, etc. 
+%   data: CONS_F signal (Group cell arrays
+%   conditions: conditions to test (e.g. baseline, FF, POST)
+%   SyncData: Synchronization signal and indices (e.g. mid pushoff)
 
 
-onsetCONS_Ftiming.CHAMP(1:450,1:30)=nan;
-
-
-BASELINE2end(1:30)=nan;
-CHAMPend(1:30)=nan;
-POSTend(1:30)=nan;
-
-x=1;
-
-elseif question==1
-    load('AnalCONS_Ftimenorm.mat')
-    temp=find(isnan(BASELINE2end)==1);
-    x=temp(1);
-end
-
-for i=x:n
-    i
-    k=0;
     
-    for j=1:FF1(i)-1
-        k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & Cycle_Table(4,j,i)==0 & SyncTiming(i,j)>500
+% catch Errors in data input
+if length(conditions)+1 ~= size(criticalCycles,1)
+    error('conditions length mismatch', 'conditions and criticalCycles input must be the same lenght');
+end
+
+% Determine the number of participants to analyze
+
+n=length(Cycle_Table);
+
+% Load Sync data and critical strides
+
+
+question=menu('Do you already have an AnalCONS_F file?','Yes','No');
+
+if question==1
+    % If there is already an AnalENCO file, load it and get the number of
+    % subjects already analysed
+    
+    load('AnalCONS_F.mat')
+    x=length(AnalCONS_F.CONS_F.(conditions{1}));
+    
+elseif question==2
+    % If there is no AnalENCO file, initialize it
+    
+    x=1;
+end
+
+for isubject=x:n
+    disp(['processing subject ', num2str(isubject),' out of ', num2str(n)]) % display subject analyzed
+    
+    for icond = 1 : length(conditions)
+        
+        k=0;
+        for istride=criticalCycles(icond,isubject)+1:criticalCycles(icond+1,isubject) % there is probably a way to vectorize this
+            k=k+1;
             
-            stop=find(isnan(data(:,j,i))==1);
-            if stop>0;
-            stop=stop(1)-1;
-            
-            CONS_F.baseline2(:,k,i)=interp1(1:(stop-SyncTiming(i,j)+1),data(SyncTiming(i,j):stop,j,i),1:(stop-SyncTiming(i,j))/(999):(stop-SyncTiming(i,j)+1));
+            if Cycle_Table{isubject}(3,istride)==1 && SyncData.SyncTiming{isubject}(istride) < length(data{isubject}{istride})
+                % it the stride is valid, SyncTiming is not the last
+                % instant (or a NaN), Synchronize and interpolate the
+                % signal.
                 
-            else 
-                              
-            CONS_F.baseline2(:,k,i)=nan;            
-                        
+                x = 1 : length(data{isubject}{istride})-SyncData.SyncTiming{isubject}(istride)+1;
+                y = data{isubject}{istride}(SyncData.SyncTiming{isubject}(istride):end);
+                
+                AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,k)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+                
+                % Duration of the analyzed period
+                AnalCONS_F.dureeswing.(conditions{icond}){isubject}(k)=length(x);
+                
+            else
+                % If the trial is bad, set as Nan
+                AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,k)=nan;
+                AnalCONS_F.dureeswing.(conditions{icond}){isubject}(k)=nan;
+                
             end
-           
-        else
-            CONS_F.baseline2(:,k,i)=nan;            
             
-        end
-        cycleID.baseline2(k,i)=j;
-        
-        
-    end
-    BASELINE2end(i)=k;
-
-    
-k=0;    
-for j=FF1(i):POST1(i)-1
-        k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & Cycle_Table(4,j,i)==0 & SyncTiming(i,j)>500
-            
-            stop=find(isnan(data(:,j,i))==1);
-            if stop>0;
-            stop=stop(1)-1;
-            
-            CONS_F.CHAMP(:,k,i)=interp1(1:(stop-SyncTiming(i,j)+1),data(SyncTiming(i,j):stop,j,i),1:(stop-SyncTiming(i,j))/(999):(stop-SyncTiming(i,j)+1));
-
-            
-            else 
-                              
-            CONS_F.CHAMP(:,k,i)=nan;            
-            
-            end
-           
-        else
-            CONS_F.CHAMP(:,k,i)=nan;            
-
-        end
-        cycleID.CHAMP(k,i)=j;
-        
-        
-    end
-    CHAMPend(i)=k;
-
-
-k=0;
-if fin(i)-POST1(i)>1;
-for j=POST1(i):fin(i)-1
-        k=k+1;
-        if Cycle_Table(3,j,i)==1 & SyncTiming(i,j)<1000 & Cycle_Table(4,j,i)==0 & SyncTiming(i,j)>500
-            
-            stop=find(isnan(data(:,j,i))==1);
-            if stop>0;
-            stop=stop(1)-1;
-            
-            CONS_F.POST(:,k,i)=interp1(1:(stop-SyncTiming(i,j)+1),data(SyncTiming(i,j):stop,j,i),1:(stop-SyncTiming(i,j))/(999):(stop-SyncTiming(i,j)+1));
-                            
-            else 
-                              
-            CONS_F.POST(:,k,i)=nan;            
-
-            end
-           
-        else
-            CONS_F.POST(:,k,i)=nan;            
-
-        end
-        cycleID.POST(k,i)=j;
-           
-    end
-    POSTend(i)=k;
-    
-    end
-end
-
-
-clear data GroupData Cycle_Table
-
-for i=x:n
-%     clf
-%     plot(ENCO.CHAMP(:,:,i),'r')
-%     hold on
-%     plot(baseline2(:,i),'b','linewidth',2)
-%     
-%     
-%     temp=ginput(1);
-%     debut(i)=round(temp(1));
-%     temp=ginput(1);
-%     fin(i)=round(temp(1));
-    
-       
-    for j=1:BASELINE2end(i)
-        
-        if isnan(CONS_F.baseline2(1,j,i))==0
-            
-            
-            peakCONS_F.baseline2(j,i)=min(CONS_F.baseline2(:,j,i));
-            peakCONS_Ftiming.baseline2(j,i)=find(CONS_F.baseline2(:,j,i)==min(CONS_F.baseline2(:,j,i)),1,'first');
-             
-        end
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHAMP
-    for j=1:CHAMPend(i)
-        
-        if isnan(CONS_F.CHAMP(1,j,i))==0
-            
-           peakCONS_F.CHAMP(j,i)=min(CONS_F.CHAMP(:,j,i));
-            peakCONS_Ftiming.CHAMP(j,i)=find(CONS_F.CHAMP(:,j,i)==min(CONS_F.CHAMP(:,j,i)),1,'first');
-           onsetCONS_Ftiming.CHAMP(j,i)=find(CONS_F.CHAMP(:,j,i)<-1,1,'first');
-           
-           
+        % Note the stride # (from the initial stride of GroupData),
+        % correspond to the analyzed stride)
+        AnalCONS_F.cycleID.(conditions{icond}){isubject}(k)=istride;    
         end
         
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%POST
-    if fin(i)-POST1(i)>1;
-    for j=1:POSTend(i)
         
-        if isnan(CONS_F.POST(1,j,i))==0
-            
-            peakCONS_F.POST(j,i)=min(CONS_F.POST(:,j,i));
-            peakCONS_Ftiming.POST(j,i)=find(CONS_F.POST(:,j,i)==min(CONS_F.POST(:,j,i)),1,'first');
-       end
         
+        %% remove bad CONS_F
+        % The function will plot synchronized CONS_F signal and analyzed
+        % period duration to validate the synchronization quality.
+        
+        duree=AnalCONS_F.dureeswing.(conditions{icond}){isubject};
+        tovalidate.Table=AnalCONS_F.CONS_F.(conditions{icond}){isubject};
+        
+        bad_cycles=removebad_Superpose1(tovalidate,{'CONS_F'},...
+            1:size(AnalCONS_F.CONS_F.(conditions{icond}){isubject},2), 'Group', 'flagDuree', duree);
+        
+        % Set selected strides as non valid
+        Cycle_Table{isubject}(3,AnalCONS_F.cycleID.(conditions{icond}){isubject}(bad_cycles))=-1;
+        
+        AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,bad_cycles)=nan;
+        
+        if icond == 1
+            % If we are analyzing the first condition, build the baseline
+            % Template (50 last baseline strides)
+            AnalCONS_F.baseline2(:,isubject)=nanmean(AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,end-49:end),2);
+        end
+    
+   
+    for istride=1:size(AnalCONS_F.CONS_F.(conditions{icond}){isubject},2)
+        
+        AnalCONS_F.deltaCONS_F.(conditions{icond}){isubject}(:,istride)=AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,istride)-AnalCONS_F.baseline2(:,isubject);
+        
+        % Peak deltaCONS_F with indices
+        [AnalCONS_F.mindeltaCONS_F.(conditions{icond}){isubject}(istride), AnalCONS_F.mindeltaCONS_Ftime.(conditions{icond}){isubject}(istride)]...
+            = min(AnalCONS_F.deltaCONS_F.(conditions{icond}){isubject}(:,istride));
+        
+        [AnalCONS_F.maxdeltaCONS_F.(conditions{icond}){isubject}(istride), AnalCONS_F.maxdeltaCONS_Ftime.(conditions{icond}){isubject}(istride) ]...
+            = max(AnalCONS_F.deltaCONS_F.(conditions{icond}){isubject}(:,istride));
+        
+        % Peak CONS_F with indices
+        [AnalCONS_F.minCONS_F.(conditions{icond}){isubject}(istride), AnalCONS_F.minCONS_Ftime.(conditions{icond}){isubject}(istride)]...
+            = min(AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,istride));
+        
+        [AnalCONS_F.maxCONS_F.(conditions{icond}){isubject}(istride), AnalCONS_F.maxCONS_Ftime.(conditions{icond}){isubject}(istride)]...
+            = max(AnalCONS_F.CONS_F.(conditions{icond}){isubject}(:,istride));
+
     end
     end
-    
-    
 end

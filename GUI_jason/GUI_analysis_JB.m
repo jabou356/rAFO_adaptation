@@ -231,6 +231,7 @@ function BaselineAnkleVariables_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%% NOT UPDATED
 [filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier de groupe baseline1')
 load([pathname,filename])
 
@@ -248,6 +249,8 @@ function BaselineTAVariables_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+%% NOT UPDATED
 [filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier de groupe baseline1')
 load([pathname,filename])
 
@@ -265,18 +268,29 @@ function Group_Ankle_Kinematic_Analysis_timenorm_Callback(hObject, eventdata, ha
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+% Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
 
-SyncData = load([pn,'SyncData.mat']);
+% Load SyncData
+useSync = 1; % switch, should be in config file
+
+if useSync
+    SyncData = load([pn,'SyncData.mat']);
+else
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
 load([pn,'CyclesCritiques.mat']);
 criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
 
 conditions = {'Baseline2', 'CHAMP', 'POST'};
 
 AnalENCO = ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO, conditions, criticalCycles, SyncData);
-
 
 [filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO');
 save(filename,'AnalENCO'); 
@@ -311,12 +325,9 @@ function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
 
-Signal=input('Quel signal voulez-vous valider? ');
+GroupData=TimeNormGroup(GroupData);
 
-s=['[GroupData.',Signal,'Norm,GroupData.',Signal,'Bin,GroupData.Cycle_Table]=TimeNormGroup(GroupData.',Signal,',GroupData.Cycle_Table);'];eval(s);
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier GroupDataNorm');
-save(filename,'GroupData');
+save([pn,fn],'GroupData');
 
 
 % --------------------------------------------------------------------
@@ -353,15 +364,34 @@ function Group_CONSF_Analysis_timenorm_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-choice=menu('Veux-tu travailler avec des données de groupe ou individuel','GroupeCONS_F','Individuel');
-
+% Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
 
-[CONS_F,peakCONS_F,peakCONS_Ftiming,onsetCONS_Ftiming,BASELINE2end,CHAMPend,POSTend,cycleID]=CONS_Fvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.CONS_F);
+
+% Load SyncData
+useSync = 1; % switch, should be in config file
+
+if useSync
+    SyncData = load([pn,'SyncData.mat']);
+else % not tested
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
+% load Cycles critiques (onset and end of each condition)
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+[AnalCONS_F]=CONS_Fvariablesgeneratortimenorm(GroupData.Cycle_Table, GroupData.CONS_F, conditions, criticalCycles, SyncData);
 
 [filename, pathname]=uiputfile('*.mat','Placez le fichier AnalCONS_Ftimenorm');
-save(filename,'CONS_F','peakCONS_F','peakCONS_Ftiming','onsetCONS_Ftiming','BASELINE2end','CHAMPend','POSTend','cycleID');
+save(filename,'AnalCONS_F');
 
 
 % --------------------------------------------------------------------
@@ -395,7 +425,17 @@ else
     AnalTA=[];
 end
 
-SyncData = load([pn,'SyncData.mat']);
+useSync = 1; % to add in configg
+if useSync
+    SyncData = load([pn,'SyncData.mat']);
+else % not tested
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
 load([pn,'CyclesCritiques.mat']);
 criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
 
@@ -421,12 +461,30 @@ function COUPLEtimenorm_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
 
-[COUPLE, baseline2, cycleID, BASELINE2end, CHAMPend, POSTend,deltaCOUPLE, peakCOUPLE, peakCOUPLEtiming]=COUPLEtimenormvariablesgenerator(GroupData.Cycle_Table,GroupData.COUPLE)
 
-clear GroupData
+useSync = 1; % to add in configg
+if useSync
+    SyncData = load([pn,'SyncData.mat']);
+else % not tested
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
 
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalTA');
-save(filename,'COUPLE','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaCOUPLE', 'peakCOUPLE','peakCOUPLEtiming');
+
+% load Cycles critiques (onset and end of each condition)
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+[AnalCOUPLE] = COUPLEtimenormvariablesgenerator(GroupData.Cycle_Table, GroupData.COUPLE, conditions, criticalCycles, SyncData);
+
+[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalCOUPLE');
+save(filename,'AnalCOUPLE');
