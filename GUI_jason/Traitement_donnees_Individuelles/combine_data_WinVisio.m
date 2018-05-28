@@ -20,7 +20,7 @@ while choice==1
     % Get the data file
     [fn,pn]=uigetfile('*.*','select a data file');
     load([pn,fn],'-mat');
-    
+    cd(pn);
     %% Keep only selected channels, put EMG first
         data=double(data([config.EMG_channels, config.Other_channels, config.Square_channels],2:end))'; %set to double, and ignore first data point (bad in Winvisio)
         rawdata{count} = data;
