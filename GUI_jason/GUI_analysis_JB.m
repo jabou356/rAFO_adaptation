@@ -55,6 +55,15 @@ function GUI_analysis_JB_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for GUI_analysis_JB
 handles.output = hObject;
 
+%% my global variables
+handles.MainDir = uigetdir('Go get the parent folder for your project');
+
+% Load or generate default config file
+if exist([handles.MainDir, 'config.mat'],'file')
+    load([handles.MainDir, 'config.mat'])
+    handles.config = config;
+else
+    config = 
 % Update handles structure
 guidata(hObject, handles);
 
@@ -174,6 +183,7 @@ function Combine_Group_Data_Callback(hObject, eventdata, handles)
 
 % This function combine multiple subjects data into a single structure/cell
 % array
+cd(handles.MainDir)
 
 GroupTablesGeneratorJB
 disp('GroupData saved')
@@ -189,6 +199,7 @@ function Idendification_Cycles_Callback(hObject, eventdata, handles)
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données GroupData');
 load([pn,fn],'-mat');
+cd(pn)
 
 if isfield(GroupData,'CONS_F')
 [CTRLlast, FFlast, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table,GroupData.CONS_F);
@@ -212,6 +223,7 @@ function Synchro_Pushoff_Callback(hObject, eventdata, handles)
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
+cd(pn)
 
 [SyncTiming, SyncThreshold, stimtimingSync] = SyncPushoff(GroupData.Cycle_Table,GroupData.ENCO);
 save('SyncData','SyncTiming','SyncThreshold', 'stimtimingSync'); 
@@ -229,6 +241,7 @@ function KinematicAnalysis_Callback(hObject, eventdata, handles)
 % Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
+cd(pn)
 
 % Load SyncData
 useSync = 1; % switch, should be in config file
@@ -266,6 +279,7 @@ function TAAnalysis_Callback(hObject, eventdata, handles)
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
 load([pn,fn],'-mat');
+cd(pn)
 
 side=menu('Do you want to Analyse right or left TA?','Right (RTA)','Left (LTA)','Just TA (TA)');
 if side==1
@@ -329,7 +343,7 @@ function COUPLEAnalysis_Callback(hObject, eventdata, handles)
 % Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
-
+cd(pn)
 
 useSync = 0; % to add in configg
 if useSync
@@ -365,7 +379,7 @@ function CONSFAnalysis_Callback(hObject, eventdata, handles)
 % Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
-
+cd(pn)
 
 % Load SyncData
 useSync = 1; % switch, should be in config file
@@ -402,6 +416,7 @@ function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
+cd(pn)
 
 GroupData=TimeNormGroup(GroupData);
 
