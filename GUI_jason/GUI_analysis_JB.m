@@ -22,7 +22,7 @@ function varargout = GUI_analysis_JB(varargin)
 
 % Edit the above text to modify the response to help GUI_analysis_JB
 
-% Last Modified by GUIDE v2.5 25-May-2018 19:14:35
+% Last Modified by GUIDE v2.5 28-May-2018 23:51:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -439,6 +439,45 @@ conditions = {'Baseline2', 'CHAMP', 'POST'};
 save(filename,'AnalCONS_F');
 
 % --------------------------------------------------------------------
+function GENERICAnalysis_Callback(hObject, eventdata, handles)
+% hObject    handle to GENERICAnalysis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% This function generates GENERIC SIGNAL outcome measures for FF adaptation
+
+% Load GroupData
+[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
+load([pn,fn],'-mat');
+cd(pn)
+
+% Load SyncData
+useSync = 1; % switch, should be in config file
+
+if useSync
+    SyncData = load([pn,'SyncData.mat']);
+else % not tested
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
+% load Cycles critiques (onset and end of each condition)
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+Signal = input ('Identify the Signal you want to analyse');
+
+GenericAnal=GenericAnalysis(GroupData.Cycle_Table, GroupData.(Signal), conditions, criticalCycles, SyncData, Signal);
+
+[filename, pathname]=uiputfile('*.mat','Placez le fichier GenericAnal');
+save(filename,'GenericAnal');
+
+% --------------------------------------------------------------------
 function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
 % hObject    handle to GroupData_TimeNorm (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -454,4 +493,7 @@ cd(pn)
 GroupData=TimeNormGroup(GroupData);
 
 save([pn,fn],'GroupData');
+
+
+
 
