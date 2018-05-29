@@ -14,6 +14,17 @@ DiffOffsetchan = [0 1 0 0];
 
 %% Select data of the channel to be used for synchronisation
 signal=fdata(:,config.Sync_channel);
+
+if config.trig_lowpass > 0
+    % If you want to apply a lowpass filter to sync channel (e.g. EMG)
+    [b,a]=butter(config.trig_Nlowpass,config.trig_lowpass/config.sFz*2);
+    signal = filtfilt(b,a,abs(signal));
+end
+
+if config.trig_diff > 0
+    % If you want to differentiate your sync channel
+    signal = diff(signal,config.trig_diff)*config.sFz;
+end
 % Decimate signal to accelerate the process
 signal=decimate(signal,5);
 
