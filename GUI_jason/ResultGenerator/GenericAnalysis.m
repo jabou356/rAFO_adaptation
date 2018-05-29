@@ -81,7 +81,7 @@ for isubject=x:n
         tovalidate.Table=AnalSignal.(Signal).(conditions{icond}){isubject};
         
         bad_cycles=removebad_Superpose1(tovalidate,{Signal},...
-            1:size(AnalSignal.(Signal).(conditions{icond}){isubject},2), 'Group', 'flagDuree', duree);
+            1:size(AnalSignal.(Signal).(conditions{icond}){isubject},2), 'Group', 'flagDuree', duree, 'flagMean');
         
         % Set selected strides as non valid
         Cycle_Table{isubject}(3,AnalSignal.cycleID.(conditions{icond}){isubject}(bad_cycles))=-1;

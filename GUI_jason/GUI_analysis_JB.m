@@ -22,7 +22,7 @@ function varargout = GUI_analysis_JB(varargin)
 
 % Edit the above text to modify the response to help GUI_analysis_JB
 
-% Last Modified by GUIDE v2.5 28-May-2018 23:51:16
+% Last Modified by GUIDE v2.5 29-May-2018 00:14:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -404,6 +404,47 @@ GenericAnal=GenericAnalysis(GroupData.Cycle_Table, GroupData.(Signal), condition
 [filename, pathname]=uiputfile('*.mat','Placez le fichier GenericAnal');
 save(filename,'GenericAnal');
 
+
+% --------------------------------------------------------------------
+function GENERICAnalysisEMG_Callback(hObject, eventdata, handles)
+% hObject    handle to GENERICAnalysisEMG (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%This function generates GENERIC EMG outcome measures for FF adaptation
+
+[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
+load([pn,fn],'-mat');
+cd(pn)
+
+%Defin the signal you want to analyse
+Signal = input ('Identify the Signal you want to analyse');
+
+data=Filter_RBI(GroupData.(Signal),9,3,1);
+ 
+useSync = 0; % to add in configg
+if useSync
+    SyncData = load([pn,'SyncData.mat']);
+else 
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+GenericAnalEMG=GenericAnalysis(GroupData.Cycle_Table, data, conditions, criticalCycles, SyncData, Signal);
+
+[filename, pathname]=uiputfile('*.mat','Placez le fichier GenericAnal');
+save(filename,'GenericAnalEMG');
+
+disp('GenericEMG saved')
+
 % --------------------------------------------------------------------
 function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
 % hObject    handle to GroupData_TimeNorm (see GCBO)
@@ -420,7 +461,3 @@ cd(pn)
 GroupData=TimeNormGroup(GroupData);
 
 save([pn,fn],'GroupData');
-
-
-
-
