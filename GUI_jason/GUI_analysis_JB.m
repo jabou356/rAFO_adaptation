@@ -56,14 +56,20 @@ function GUI_analysis_JB_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 %% my global variables
-handles.MainDir = uigetdir('Go get the parent folder for your project');
-
+handles.MainDir = uigetdir([],'Go get the parent folder for your project');
+cd(handles.MainDir)
 % Load or generate default config file
-if exist([handles.MainDir, 'config.mat'],'file')
-    load([handles.MainDir, 'config.mat'])
+if exist([handles.MainDir, '/config.mat'],'file')
+    load([handles.MainDir, '/config.mat'])
     handles.config = config;
+    disp('Config file loaded')
 else
-    config = 
+config = DefaultConfigGen;
+handles.config = config;
+save([handles.MainDir, '/config.mat'],'config');
+disp('Config file created')
+end
+    
 % Update handles structure
 guidata(hObject, handles);
 
@@ -103,8 +109,22 @@ function Combine_WinVisio_data_Callback(hObject, eventdata, handles)
 % This function combine multiple .mat files and process data (filters,
 % gain, etc.)
 %% Load calibration
-[fn,pn]=uigetfile('*.mat','select the calibration file');
-config=load([pn,fn],'-mat');
+%[fn,pn]=uigetfile('*.mat','select the calibration file');
+%config=load([pn,fn],'-mat');
+
+% cd the subject directory
+cd(uigetdir([],'Go to your subject directory'))
+
+if exist('config.mat','file')
+    %If there is a subject specific config file, load it
+    load('config.mat');
+    disp('Subject specific config')
+else
+    
+    %If there is no subject specific config file, load the generic one
+    config = handles.config;
+    disp('Generic config')
+end
 
 combine_data_WinVisio(config)
 disp('combined file saved')
@@ -117,8 +137,21 @@ function Cut_Table_Lokomath_Callback(hObject, eventdata, handles)
 
 %This function cut processed data into individual strides
 %% load config file
-[filename,pathfile]=uigetfile('*.*','Choisir fichier de calibration');
-config = load([pathfile,filename],'-mat');
+% cd the subject directory
+cd(uigetdir([],'Go to your subject directory'))
+
+if exist('config.mat','file')
+    %If there is a subject specific config file, load it
+    load('config.mat');
+    disp('Subject specific config')
+else
+    
+    %If there is no subject specific config file, load the generic one
+    config = handles.config;
+    disp('Generic config')
+end
+%[filename,pathfile]=uigetfile('*.*','Choisir fichier de calibration');
+%config = load([pathfile,filename],'-mat');
 
 %% Load combined data file in the current folder
 load('combined_data');
