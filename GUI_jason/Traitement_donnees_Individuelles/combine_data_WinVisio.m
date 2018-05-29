@@ -41,7 +41,7 @@ while choice==1
     % Filter EMG data
     Fc=config.EMG_filter;
     order=config.Order;
-    [b,a] = butter(order,Fc/500);
+    [b,a] = butter(order,Fc/config.sFz*2);
     fdata{count}=filtfilt(b,a,data(:,1:nemg));
     
     %fdata=abs(fdata); %keep none rectified EMG as long as possible
@@ -52,7 +52,7 @@ while choice==1
     % Filter Other data
     Fc=config.Other_filter;
     order=config.Order;
-    [b,a] = butter(order,Fc/500);
+    [b,a] = butter(order,Fc/config.sFz*2);
     fdata{count}=[fdata{count},filtfilt(b,a,data(:,nemg+1:nemg+nothers))];
     
     %% Do not filter square channels
