@@ -33,5 +33,8 @@ config.Other_filter = 15; %[Low pass Fz]
 config.Order = 2; % filter order (divide the wanted number by two as we use filtfilt
 
 config.sFz = 1000; % Sampling frequency (scalar)
+
+%% Config for Analyses
+config.useSync = 1; %1: Use sync data for analyses (e.g. middle pushoff), 0:start at first data point of each stride
 end
 

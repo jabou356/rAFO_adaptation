@@ -277,9 +277,7 @@ load([pn,fn],'-mat');
 cd(pn)
 
 % Load SyncData
-useSync = 1; % switch, should be in config file
-
-if useSync
+if handles.config.useSync
     SyncData = load([pn,'SyncData.mat']);
 else
     %If you don't want to use SyncData, use the beginning of each stride
@@ -336,8 +334,7 @@ else
     AnalTA=[];
 end
 
-useSync = 1; % to add in configg
-if useSync
+if handles.config.useSync
     SyncData = load([pn,'SyncData.mat']);
 else 
     %If you don't want to use SyncData, use the beginning of each stride
@@ -379,9 +376,8 @@ load([pn,fn],'-mat');
 cd(pn)
 
 % Load SyncData
-useSync = 1; % switch, should be in config file
 
-if useSync
+if handles.config.useSync
     SyncData = load([pn,'SyncData.mat']);
 else % not tested
     %If you don't want to use SyncData, use the beginning of each stride
@@ -422,8 +418,7 @@ Signal = input ('Identify the Signal you want to analyse');
 
 data=Filter_RBI(GroupData.(Signal),9,3,1);
  
-useSync = 0; % to add in configg
-if useSync
+if handles.config.useSync
     SyncData = load([pn,'SyncData.mat']);
 else 
     %If you don't want to use SyncData, use the beginning of each stride
