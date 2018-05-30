@@ -1,4 +1,4 @@
-function [Seuil,pente,ZoneIncertitude]= createFit (data)
+function [Seuil,pente,ZoneIncertitude]= createFit (data,nom)
 % trace les sigmoides pour déterminer seuil et zone incertitude
 %% lecture
 
@@ -23,11 +23,12 @@ val=coeffvalues(cfit(fitresult));
 a=val(1);b=val(2);
 
 % Plot fit with data.
-figure(1);
+figure('name',nom);
 h = plot( fitresult, xData, yData );hold on;
-legend( h, 'Data', 'Sigmoide', 'Location', 'NorthEast' );
-xlabel data
+legend( h, nom, 'Sigmoide', 'Location', 'NorthEast' );
+xlabel (nom)
 grid on
+savefig (nom)
 waitforbuttonpress
 close (figure (1))
 

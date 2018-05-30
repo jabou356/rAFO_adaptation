@@ -48,9 +48,10 @@ end
 
 
 %% Sigmoïdes
-
-[Seuil_dCouple, pente_dCouple]=createFit(dCouple);
-[Seuil_dENCO, pente_dENCO,ZoneIncertitude_dENCO]=createFit(dENCO);
+nom='dCouple';
+[Seuil_dCouple, pente_dCouple,ZoneIncertitude_dCouple]=createFit(dCouple,nom);
+nom='dENCO';
+[Seuil_dENCO, pente_dENCO,ZoneIncertitude_dENCO]=createFit(dENCO,nom);
 
 
 %% Exportation
