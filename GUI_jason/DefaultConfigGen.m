@@ -4,11 +4,11 @@ function [config] = DefaultConfigGen()
 %   manually by experimenter directly it the .mat file
 
 %% Channel identifier (all vectors, and cell array {chan names})
-config.EMG_channels = [1,2,3,4,5,7]; %Original EMG chan number in WinVisio
+config.EMG_channels = [1,2,3,4,5]; %Original EMG chan number in WinVisio
 config.Other_channels = [8,14,15,16]; %Original chan number (not EMG, not squared) in WinVisio
-config.Square_channels = 12; %Original chan number (square waves) in WinVisio
-config.chan_name = {'TA','SOL','GM','VL','RF','ST','Knee','CONS_F',...
-    'ENCO','COUPLE','HS'};%EMG goes first
+config.Square_channels = [10, 12]; %Original chan number (square waves) in WinVisio
+config.chan_name = {'TA','SOL','GM','VL','RF','Knee','CONS_F',...
+    'ENCO','COUPLE','Response','HS'};%EMG goes first
 
 %% Identifier event channels with properties (all scalars)
 config.ISFF_channel = 8; % Channel with FF command (e.g. CONS_F)
@@ -34,7 +34,15 @@ config.Order = 2; % filter order (divide the wanted number by two as we use filt
 
 config.sFz = 1000; % Sampling frequency (scalar)
 
-%% Config for Analyses
+%% Config for Adaptation Analyses
 config.useSync = 1; %1: Use sync data for analyses (e.g. middle pushoff), 0:start at first data point of each stride
+
+%% Config for Proprio Analysis
+config.AnkleName = 'ENCO';
+config.COUPLEName = 'COUPLE';
+config.ResponseName = 'Response';
+config.ForcecommandName = 'CONS_F';
+config.ResponseTh = 1.5;
+
 end
 
