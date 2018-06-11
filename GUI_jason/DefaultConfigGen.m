@@ -15,7 +15,7 @@ config.ISFF_channel = 8; % Channel with FF command (e.g. CONS_F)
 config.FFdetect_level = 5; % Threshold for FF detection (should be an positive scalar)
 
 config.ISRFLX_channel = 0; % Channel to identify RFLX, catch, anticatch (e.g. Memory gate)
-config.RFLXdetect_level = 2.5; % Threshold for event channel (should be a positive scalar)
+config.RFLXdetect_level = 0.4; % Threshold for event channel (should be a positive scalar)
 
 %% Partition table into individual strides (all scalars or char)
 config.Sync_channel = 11; % Channel # used to partition data
