@@ -174,4 +174,4 @@ while over~=1
     end %if
 end %while
 
-close all
+close 

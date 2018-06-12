@@ -121,7 +121,7 @@ Cycle_Table(:,3) = 0;
     
 choice_redo = menu('Do you want to redefine the threshold','yes','no');
 % if not happy, do it again
-close all; % close waitbar and figure
+close; % close waitbar and figure
 end
 
 %% Create an offset in the data
@@ -184,7 +184,7 @@ elseif Choice_offset == 2
     Cycle_Table(2:end,2)=Cycle_Table(2:end,2) + offset;
     
 end 
-close all
+close
 
 end
 

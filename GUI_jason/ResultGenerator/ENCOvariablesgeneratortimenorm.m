@@ -66,8 +66,7 @@ for isubject=x:n
         % correspond to the analyzed stride)
         AnalENCO.cycleID.(conditions{icond}){isubject}(k)=istride;
         end
-        
-        
+            
         
         %% remove bad ENCO
         % The function will plot synchronized ENCO signal and analyzed
