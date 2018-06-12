@@ -1,4 +1,4 @@
-function AnalProprio = ProprioAnalysis (data, Cycle_Table, config, Sync_Data)
+function AnalProprio = ProprioAnalysis (data, Cycle_Table, config)
 % Define Force field direction
 Direction=menu('Which direction is the force field?','Toward plantar flexion, resist dorsiflexion','Toward dorsiflexion, resist plantar flexion');
 
@@ -16,12 +16,17 @@ chan_Response=find(strcmp(config.chan_name,config.ResponseName));
 % Find strides with an activated button & consider a positive response if
 % the button was clicked during the current or the following stride & if the
 % stride is not valid  the button is not valid
-response = cellfun(@(x)(min(x(:,chan_Response))<config.ResponseTh),Table);
-AnalProprio.response = response(1:end-2)+response(2:end);
+response = cellfun(@(x)(min(x(:,chan_Response))<config.ResponseTh),data);
+AnalProprio.response = response(1:end-1)+response(2:end);
 AnalProprio.response(Cycle_Table(:,3)==0) = nan;
 
-
+% Synchronise data on Peak pushoff
+if config.useSync
 SyncData = SyncPushoffProprio (Cycle_Table,data,condStrides, chan_ENCO);
+else
+    SyncData.SyncTiming(1:size(Cycle_Table,1))=1;
+end
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% end synchronisation on pushoff
@@ -32,20 +37,20 @@ strideduration = cellfun(@(x)(size(x,1)),data);
 for icond = 1:length(conditions)
 for istride=1:length(condStrides{icond})
     if Cycle_Table(condStrides{icond}(istride),3)==1 && ...
-            SyncData.SyncTiming{1}(condStrides{icond}(istride)) < strideduration(condStrides{icond}(istride))
+            SyncData.SyncTiming(condStrides{icond}(istride)) < strideduration(condStrides{icond}(istride))
                 % it the stride is valid, SyncTiming is not the last
                 % instant (or a NaN), Synchronize and interpolate the
                 % signal.
        
-                x = 1 : strideduration(condStrides{icond}(istride))-SyncData.SyncTiming{1}(condStrides{icond}(istride))+1;
-                y = data{istride}(SyncData.SyncTiming{1}(condStrides{icond}(istride)):end,chan_ENCO);
-                AnalProprio.ENCO.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+                x = 1 : strideduration(condStrides{icond}(istride))-SyncData.SyncTiming(condStrides{icond}(istride))+1;
+                y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_ENCO)';
+                AnalProprio.ENCO.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
                 
-                y = data{istride}(SyncData.SyncTiming{1}(condStrides{icond}(istride)):end,chan_COUPLE);
-                AnalProprio.COUPLE.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+                y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_COUPLE)';
+                AnalProprio.COUPLE.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
                 
-                y = data{istride}(SyncData.SyncTiming{1}(condStrides{icond}(istride)):end,chan_CONSF);
-                AnalProprio.CONS_F.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+                y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_CONSF)';
+                AnalProprio.CONS_F.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
                 
                 AnalProprio.dureeswing.(conditions{icond})(istride)=length(x);
                 
@@ -60,8 +65,13 @@ for istride=1:length(condStrides{icond})
 end
 
 %% Validate synchronisation
-% PUT REMOVE BAD SUPERPOSE HERE
-Cycle_Table(mauvaissync,3)=-1; %Add JB July13
+
+duree=AnalProprio.dureeswing.(conditions{icond});
+tovalidate.Table=AnalProprio.ENCO.(conditions{icond});
+        
+bad_cycles=removebad_Superpose1(tovalidate,{'ENCO'},...
+1:size(AnalProprio.ENCO.(conditions{icond}),2), 'Group', 'flagDuree', duree);
+
 Cycle_Table(bad_cycles,3)=-1;
 
 if icond == 1
@@ -74,23 +84,22 @@ end
 for istride=1:length(condStrides{icond})
     
     % Find max kinematic deviation after FF onset
-    if Cycle_Table(condStrides{icond}(istride),3)==1
-
-        %Find onset FF = 1st instance CONS_F cross detection threshold
-        AnalProprio.onsetFF.(conditions{icond})(istride) =find(abs(AnalProprio.CONS_F.(conditions{icond})(:,istride)) ...
-            >= config.RFLXdetect_level ,1,'first'); 
-        
+    if Cycle_Table(condStrides{icond}(istride),3)==1 && Cycle_Table(condStrides{icond}(istride),5)==1
+      
         % Find max FF and index
         [AnalProprio.maxFF.(conditions{icond})(istride), AnalProprio.maxFFtiming.(conditions{icond})(istride)] = ...
             max(abs(AnalProprio.CONS_F.(conditions{icond})(:,istride))); 
         
-
         % compute delta ENCO and deltaCOUPLE for each stride
         AnalProprio.deltaENCO.(conditions{icond})(:,istride) = ...
             AnalProprio.ENCO.(conditions{icond})(:,istride) - AnalProprio.baselineENCO;
         
         AnalProprio.deltaCOUPLE.(conditions{icond})(:,istride) = ...
             AnalProprio.COUPLE.(conditions{icond})(:,istride) - AnalProprio.baselineCOUPLE;
+        
+        %Find onset FF = 1st instance CONS_F cross detection threshold
+        AnalProprio.onsetFF.(conditions{icond})(istride) = find(abs(AnalProprio.CONS_F.(conditions{icond})(:,istride)) ...
+            >= config.FFdetect_level ,1,'first'); 
         
         % compute corrected deltaENCO and deltaCOUPLE: bring deltaENCO and deltaCOUPLE to zero at onsetFF
         AnalProprio.deltaENCOcorr.(conditions{icond})(:,istride) = ...
