@@ -12,14 +12,14 @@ function [SyncData] = SyncPushoffProprio(Cycle_Table,data, conditions, chan_ENCO
 
        for icond = 1:length(conditions) 
            
-            for istride=conditions{icond})
-                
+            for istride=1:length(conditions{icond})
+                stride=conditions{icond}(istride);
                 % Plot baseline cycles in blue
                 if Cycle_Table(istride,3) == 1
                     % Plot data from 500 to the end to avoid initial
                     % plantar flexion 
                     
-                    plot(data{istride}(500:end-1,chan_ENCO),colors{icond})
+                    plot(data{stride}(500:end-1,chan_ENCO),colors{icond})
                     hold on
                     
                 end
@@ -37,7 +37,7 @@ function [SyncData] = SyncPushoffProprio(Cycle_Table,data, conditions, chan_ENCO
                 
                 % For each stride, determine the instant at which data cross the
                 % threshold with a negative velocity.
-                temp=find((data{istride}(500:end-1,chan_ENCO) < SyncData.SyncThreshold(isubject))&(diff(data{istride}(500:end,chan_ENCO))<0));
+                temp=find((data{istride}(500:end-1,chan_ENCO) < SyncData.SyncThreshold)&(diff(data{istride}(500:end,chan_ENCO))<0));
                 
                 if ~isempty(temp)
                     % If the stride cross SyncThreshold with a negative
@@ -59,6 +59,6 @@ function [SyncData] = SyncPushoffProprio(Cycle_Table,data, conditions, chan_ENCO
         
     
     
-    close all
+    close 
         
         

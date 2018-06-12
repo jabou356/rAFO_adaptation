@@ -467,16 +467,10 @@ function AnalProprio_Callback(hObject, eventdata, handles)
 
 cd(uigetdir([],'Go to your subject directory'))
 %%%%ADD SYNC DATA FOR INDIVIDUAL SUBJECTS HERE
+load('Table_data.mat')
 
-if handles.config.useSync
-    SyncData = load([pn,'SyncData.mat']);
-else 
-    %If you don't want to use SyncData, use the beginning of each stride
-    for isubject = 1:length(GroupData.Cycle_Table)
-       SyncData.SyncTiming{1}(1:size(GroupData.Cycle_Table{1},2))=1;
-    end
-end
-AnalProprio = ProprioAnalysis (Table, Cycle_Table, config, Sync_Data);
+AnalProprio = ProprioAnalysis(Table, Cycle_Table, config);
+save('AnalProprio.mat','AnalProprio');
 
 % --------------------------------------------------------------------
 function ProprioOutcome_Callback(hObject, eventdata, handles)
