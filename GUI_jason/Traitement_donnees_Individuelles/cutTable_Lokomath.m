@@ -36,7 +36,7 @@ while choice_redo == 1
     %% Manually define detection threshold, cycle duration and refractory period
     
     % show 10 seconds of data
-    figure('units','normalized','outerposition',[0 0 1 1])
+    myfig = figure('units','normalized','outerposition',[0 0 1 1]);
     
     
     if config.sFz*20/5 < length(signal)
@@ -115,13 +115,14 @@ Cycle_Table(:,1)= identifiant_init(1:end-1)*5;% *5 because of decimation factor
 Cycle_Table(:,2)= identifiant_init(2:end)*5;
 Cycle_Table(:,3) = 0;
 
-    figure('units','normalized','outerposition',[0 0 1 1])
+close(myfig)
+    myfig = figure('units','normalized','outerposition',[0 0 1 1]);
     % We show the cycle duration and ask if the user is happy
     plot(1:size(Cycle_Table,1),Cycle_Table(:,2)-Cycle_Table(:,1),'bo')
     
 choice_redo = menu('Do you want to redefine the threshold','yes','no');
 % if not happy, do it again
-close; % close waitbar and figure
+close(h,myfig) % close waitbar and figure
 end
 
 %% Create an offset in the data
@@ -129,7 +130,7 @@ Choice_offset=1; %'Do you want to create an offset of the HS position'
 
 while Choice_offset==1 || Choice_offset==2
     
-figure('units','normalized','outerposition',[0 0 1 1])
+myfig = figure('units','normalized','outerposition',[0 0 1 1]);
 
 for istride=10:100:size(Cycle_Table,1)
 %% Show one stride, every 100 stride, starting at the 10th    
@@ -184,7 +185,7 @@ elseif Choice_offset == 2
     Cycle_Table(2:end,2)=Cycle_Table(2:end,2) + offset;
     
 end 
-close
+close(myfig)
 
 end
 

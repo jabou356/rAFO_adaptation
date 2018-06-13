@@ -21,8 +21,8 @@ if strcmp(type, 'Group')
     
 end
 
-close all
-figure('units','normalized','outerposition',[0 0 1 1], ...
+ 
+myfig = figure('units','normalized','outerposition',[0 0 1 1], ...
     'Name', 'Select bad strides, and click in the white space when finished')
 % Determine the number of additional needed for 'flagDuree' and/or
 % 'flagMean'
@@ -174,4 +174,4 @@ while over~=1
     end %if
 end %while
 
-close 
+close(myfig) 
