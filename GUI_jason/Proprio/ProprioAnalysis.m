@@ -1,6 +1,11 @@
 function AnalProprio = ProprioAnalysis (data, Cycle_Table, config)
 % Define Force field direction
 Direction=menu('Which direction is the force field?','Toward plantar flexion, resist dorsiflexion','Toward dorsiflexion, resist plantar flexion');
+if Direction == 1
+    AnalProprio.Direction ={'Plantarflexion'};
+elseif Direction == 2
+    AnalProprio.Direction ={'Dorsiflexion'};
+end
 
 % Identify strides with and without force fields
 conditions = {'CTRL','STIM'};
@@ -40,7 +45,7 @@ for icond = 1:length(conditions)
             % it the stride is valid, SyncTiming is not the last
             % instant (or a NaN), Synchronize and interpolate the
             % signal.
-            AnalProprio.Response.(conditions{icond})(:,istride) = response(condStrides{icond}(istride));
+            AnalProprio.Response.(conditions{icond})(istride) = response(condStrides{icond}(istride));
             
             x = 1 : strideduration(condStrides{icond}(istride))-SyncData.SyncTiming(condStrides{icond}(istride))+1;
             y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_ENCO)';
