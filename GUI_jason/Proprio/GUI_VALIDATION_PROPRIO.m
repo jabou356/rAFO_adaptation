@@ -55,12 +55,11 @@ function GUI_VALIDATION_PROPRIO_OpeningFcn(hObject, eventdata, handles, varargin
 
 % Choose default command line output for GUI_VALIDATION_PROPRIO
 handles.output = hObject;
-[filename,pathname]=uigetfile('*.mat','ProprioAnal')
-load([pathname,filename])
-handles.variable=variable;
-handles.resultat=resultat;
-handles.direction=menu('Which direction is the perturbation','resist dorsiflexion','assist dorsiflexion');
-handles.i=0;
+
+load('AnalProprio.mat');
+handles.AnalProprio=AnalProprio;
+
+handles.itrial=0;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -93,18 +92,17 @@ axes(handles.axes_bouton)
 cla
 axes(handles.axes_deltaF)
 cla
-if handles.i>=size(handles.variable.deltaENCO,2)
-    menu('C''est fini','OK')
+if handles.itrial >= length(handles.AnalProprio.onsetFF.STIM)
+    menu('All done','OK')
 else
     
-    handles.i=handles.i+1;
+    handles.itrial=handles.itrial+1;
     
     
-    set(handles.stride,'string',num2str(handles.i))
+    set(handles.stride,'string',num2str(handles.itrial))
     
     
-    temp=isnan(handles.resultat(handles.i,1));
-    if temp==1
+    if isnan == handles.AnalProprio.onsetFF.STIM(handles.itrial)
         set(handles.notvalid,'string','NOT VALID')
         set(handles.notvalid,'backgroundcolor','r')
     else
@@ -112,8 +110,7 @@ else
         set(handles.notvalid,'backgroundcolor','b')
     end
     
-    temp=handles.resultat(handles.i,6);
-    if temp==1
+    if handles.AnalProprio.Response.STIM
         set(handles.detected,'string','detected')
         set(handles.detected,'backgroundcolor','g')
     else
@@ -124,48 +121,44 @@ else
     
     
     axes(handles.axes_deltaENCO)
-    plot(handles.variable.deltaENCOcorrected(:,handles.i),'b')
+    plot(handles.AnalProprio.deltaENCOcorr.STIM(:,handles.itrial),'b')
     a=axis;
     hold on
-    x1=handles.variable.erreurmax2timing(handles.i);
+    x1=handles.AnalProprio.peakDeltaENCOcorrtiming.STIM(handles.itrial);
     handles.h(1)=line([x1 x1],[a(3) a(4)],'color','k');
     
     axes(handles.axes_deltaF)
-    plot(handles.variable.deltaCOUPLE(:,handles.i),'b')
+    plot(handles.AnalProprio.deltaCOUPLEcorr.STIM(:,handles.itrial),'b')
     a=axis;
     hold on
-    x2=handles.variable.peakFtiming(handles.i);
+    x2=handles.AnalProprio.peakDeltaCOUPLEcorrtiming.STIM(handles.itrial);
     handles.h(2)=line([x2 x2],[a(3) a(4)],'color','g');
     
     axes(handles.axes_CONS_F)
-    plot(handles.variable.CONS_F(:,handles.i),'b')
+    plot(handles.AnalProprio.CONS_F.STIM(:,handles.itrial),'b')
     a=axis;
     hold on
     handles.h(3)=line([x1 x1],[a(3) a(4)],'color','k');
     handles.h(4)=line([x2 x2],[a(3) a(4)],'color','g');
     
-    axes(handles.axes_bouton)
-    plot(handles.variable.bouton(:,handles.i),'b')
-    a=axis;
-    hold on
-    x3=handles.variable.onsetCF(handles.i);
-    handles.h(5)=line([x3 x3],[a(3) a(4)],'color','m');
+    x3=handles.AnalProprio.onsetFF.STIM(handles.itrial);
     
     axes(handles.axes_CONS_F)
     a=axis;
-    handles.h(6)=line([x3 x3],[a(3) a(4)],'color','m');
+    handles.h(5)=line([x3 x3],[a(3) a(4)],'color','m');
     
     
     axes(handles.axes_deltaF)
     a=axis;
-    handles.h(7)=line([x3 x3],[a(3) a(4)],'color','m');
-    uistack(handles.h(7),'bottom')
+    handles.h(6)=line([x3 x3],[a(3) a(4)],'color','m');
+    uistack(handles.h(6),'bottom')
     
     axes(handles.axes_deltaENCO)
     a=axis;
-    handles.h(8)=line([x3 x3],[a(3) a(4)],'color','m');
-    uistack(handles.h(8),'bottom')
+    handles.h(7)=line([x3 x3],[a(3) a(4)],'color','m');
+    uistack(handles.h(7),'bottom')
     
+    %% RENDU ICI
     set(handles.MaxError,'string',num2str(handles.resultat(handles.i,5)))
     set(handles.MaxError1,'string',num2str(handles.resultat(handles.i,4)))
     set(handles.ErrorTiming,'string',num2str(handles.variable.erreurmax2timing(handles.i)))
