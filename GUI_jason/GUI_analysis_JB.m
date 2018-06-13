@@ -22,7 +22,7 @@ function varargout = GUI_analysis_JB(varargin)
 
 % Edit the above text to modify the response to help GUI_analysis_JB
 
-% Last Modified by GUIDE v2.5 29-May-2018 22:08:09
+% Last Modified by GUIDE v2.5 12-Jun-2018 23:00:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -466,14 +466,25 @@ function AnalProprio_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 cd(uigetdir([],'Go to your subject directory'))
-%%%%ADD SYNC DATA FOR INDIVIDUAL SUBJECTS HERE
+
 load('Table_data.mat')
 
 AnalProprio = ProprioAnalysis(Table, Cycle_Table, config);
 save('AnalProprio.mat','AnalProprio');
 
 % --------------------------------------------------------------------
+function ValidationProprio_Callback(hObject, eventdata, handles)
+% hObject    handle to ValidationProprio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cd(uigetdir([],'Go to your subject directory'))
+
+% --------------------------------------------------------------------
 function ProprioOutcome_Callback(hObject, eventdata, handles)
 % hObject    handle to ProprioOutcome (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+
