@@ -486,5 +486,36 @@ function ProprioOutcome_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+cd(uigetdir([],'Go to your subject directory'))
+
+load('AnalProprio.mat');
+
+% Compute Outcomes for ENCO signal
+[sortedENCO,I] = sort(AnalProprio.peakDeltaENCOcorr.STIM);
+Response = AnalProprio.Response.STIM(I);
+
+for itrial = 1 :length(sortedENCO)-3
+    movingsortedENCO (itrial) = mean(abs(sortedENCO(itrial:itrial+3)));    
+    movingResponse (itrial) = mean(Response(itrial:itrial+3)); 
+end
+
+data = [movingsortedENCO(~isnan(movingsortedENCO)) ; movingResponse(~isnan(movingsortedENCO))]';
+[AnalProprio.Threshold.ENCO,AnalProprio.Slope.ENCO,AnalProprio.Incertainty.ENCO] = createFit(data,'ENCO');
+
+% Compute Outcomes for COUPLE signal
+[sortedCOUPLE,I] = sort(AnalProprio.peakDeltaCOUPLEcorr.STIM);
+Response = AnalProprio.Response.STIM(I);
+
+for itrial = 1 :length(sortedCOUPLE)-3
+    movingsortedCOUPLE (itrial) = mean(abs(sortedCOUPLE(itrial:itrial+3)));    
+    movingResponse (itrial) = mean(Response(itrial:itrial+3)); 
+end
+
+data = [movingsortedCOUPLE(~isnan(movingsortedCOUPLE)) ; movingResponse(~isnan(movingsortedCOUPLE))]';
+[AnalProprio.Threshold.COUPLE,AnalProprio.Slope.COUPLE,AnalProprio.Incertainty.COUPLE] = createFit(data,'COUPLE');
+
+save('AnalProprio.mat')
+ 
+
 
 
