@@ -12,7 +12,7 @@ config.chan_name = {'TA','SOL','GM','VL','RF','Knee','CONS_F',...
 
 %% Identifier event channels with properties (all scalars)
 config.ISFF_channel = 7; % Channel with FF command (e.g. CONS_F)
-config.FFdetect_level = 0.4; % Threshold for FF detection (should be an positive scalar)
+config.FFdetect_level = 0.6; % Threshold for FF detection (should be an positive scalar)
 
 config.ISRFLX_channel = 0; % Channel to identify RFLX, catch, anticatch (e.g. Memory gate)
 config.RFLXdetect_level = 0.4; % Threshold for event channel (should be a positive scalar)
@@ -26,7 +26,7 @@ config.trig_Nlowpass = 0; % Set low pass order if to be used
 config.pct_refractaire = 0.8; % Duration of refractory period (must be between 0 and 1) 
 
 %% Preprocessing properties
-config.chan_gain = [250, 250, 250, 250, 250, 90, 4, 4, 10, 1, 1]; % vector with chan gains
+config.chan_gain = [250, 250, 250, 250, 250, 90, 4, 8, 10, 1, 1]; % vector with chan gains
 
 config.EMG_filter = [20 450]; % [low pass Fz, High pass Fz 0
 config.Other_filter = 15; %[Low pass Fz]
