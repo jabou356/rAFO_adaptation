@@ -61,8 +61,8 @@ for icond = 1:length(conditions)
             AnalProprio.bouton.(conditions{icond})(1:1000,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
 
             % bouton, have to show the current and the next stride
-            if istride > length(data)
-            x2 = 1 : strideduration(condStrides{icond}(istride))+1;
+            if condStrides{icond}(istride) < length(data)
+            x2 = 1 : strideduration(condStrides{icond}(istride)+1);
             y = data{condStrides{icond}(istride)+1}(:,chan_Response)';
             AnalProprio.bouton.(conditions{icond})(1001:2000,istride)=interp1(x2,y,1:(length(x2)-1)/(999):length(x2))';
             end

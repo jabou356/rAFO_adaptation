@@ -110,7 +110,7 @@ else
         set(handles.notvalid,'backgroundcolor','b');
     end
     
-    if handles.AnalProprio.Response.STIM
+    if handles.AnalProprio.Response.STIM(handles.itrial)
         set(handles.detected,'string','detected');
         set(handles.detected,'backgroundcolor','g');
     else
@@ -163,12 +163,11 @@ else
     uistack(handles.h(7),'bottom')
     
 %% Update values on GUI
-    set(handles.MaxError,'string',num2str(handles.AnalProprio.peakDeltaENCO.STIM(handles.itrial)));
-    set(handles.MaxErrorCorr,'string',num2str(handles.AnalProprio.peakDeltaENCOcorr.STIM(handles.itrial)));
+    set(handles.MaxError,'string',num2str(handles.AnalProprio.peakDeltaENCOcorr.STIM(handles.itrial)));
     set(handles.ErrorTiming,'string',num2str(handles.AnalProprio.peakDeltaENCOcorrtiming.STIM(handles.itrial)));
     set(handles.peakcouple,'string',num2str(handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)));
     set(handles.peakcoupletiming,'string',num2str(handles.AnalProprio.peakDeltaCOUPLEcorrtiming.STIM(handles.itrial)));
-    set(handles.peakconsf,'string',num2str(AnalProprio.maxFF.STIM(handles.itrial)));
+    set(handles.peakconsf,'string',num2str(handles.AnalProprio.maxFF.STIM(handles.itrial)));
     
 end
 
@@ -260,9 +259,9 @@ while not(over)
             set(handles.h([1 3]),'color','r')
             [x,~]=ginput(1);
             
-            if handles.direction==1
+            if strcmp(handles.AnalProprio.Direction{1},'Plantarflexion')
                 x1=find(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)==min(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)));
-            elseif handles.direction==2
+            else
                 x1=find(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)==max(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)));
             end
             x=round(x1+x-41);
@@ -280,16 +279,16 @@ while not(over)
             set(handles.h([2 4]),'color','r');
             [x,~]=ginput(1);
             
-            if handles.direction==1
+            if strcmp(handles.AnalProprio.Direction{1},'Plantarflexion')
                 x1=find(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)==min(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)));
-            elseif handles.direction==2
+            else 
                 x1=find(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)==max(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)));
             end
             
             x=round(x1+x-41);
             handles.AnalProprio.peakDeltaCOUPLEcorrtiming.STIM(handles.itrial)=x;
-            handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)=handles.handles.AnalProprio.deltaCOUPLEcorr.STIM(x,handles.itrial);
-            handles.AnalProprio.peakDeltaCOUPLE.STIM(handles.itrial)=handles.handles.AnalProprio.deltaCOUPLE.STIM(x,handles.itrial);
+            handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)=handles.AnalProprio.deltaCOUPLEcorr.STIM(x,handles.itrial);
+            handles.AnalProprio.peakDeltaCOUPLE.STIM(handles.itrial)=handles.AnalProprio.deltaCOUPLE.STIM(x,handles.itrial);
 
             set(handles.peakcouple,'string',num2str(handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)));
             set(handles.peakcoupletiming,'string',num2str(x));
@@ -318,13 +317,13 @@ if strcmp(cond,'detected')
     
     set(handles.detected,'string','not detected')
     set(handles.detected,'backgroundcolor','r')
-    handles.AnalProprio.Response.STIM(istride)=0;
+    handles.AnalProprio.Response.STIM(handles.itrial)=0;
     
 elseif strcmp(cond,'not detected')
     
     set(handles.detected,'string','detected')
     set(handles.detected,'backgroundcolor','g')
-    handles.AnalProprio.Response.STIM(istride)=1;
+    handles.AnalProprio.Response.STIM(handles.itrial)=1;
     
 end
 guidata(hObject, handles);

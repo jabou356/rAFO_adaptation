@@ -480,6 +480,8 @@ function ValidationProprio_Callback(hObject, eventdata, handles)
 
 cd(uigetdir([],'Go to your subject directory'))
 
+GUI_VALIDATION_PROPRIO
+
 % --------------------------------------------------------------------
 function ProprioOutcome_Callback(hObject, eventdata, handles)
 % hObject    handle to ProprioOutcome (see GCBO)
