@@ -57,6 +57,18 @@ for icond = 1:length(conditions)
             y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_CONSF)';
             AnalProprio.CONS_F.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
             
+            y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_Response)';
+            AnalProprio.bouton.(conditions{icond})(1:1000,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
+
+            % bouton, have to show the current and the next stride
+            if istride > length(data)
+            x2 = 1 : strideduration(condStrides{icond}(istride))+1;
+            y = data{condStrides{icond}(istride)+1}(:,chan_Response)';
+            AnalProprio.bouton.(conditions{icond})(1001:2000,istride)=interp1(x2,y,1:(length(x2)-1)/(999):length(x2))';
+            end
+
+
+            
             AnalProprio.dureeswing.(conditions{icond})(istride)=length(x);
             
         else
@@ -190,6 +202,8 @@ for icond = 1:length(conditions)
                 AnalProprio.peakDeltaCOUPLEtiming.(conditions{icond})(istride) = nan;
                 AnalProprio.peakDeltaCOUPLEcorr.(conditions{icond})(istride) = nan;
                 AnalProprio.peakDeltaCOUPLEcorrtiming.(conditions{icond})(istride) = nan;
+                AnalProprio.maxFF.(conditions{icond})(istride)= nan;
+                AnalProprio.maxFFtiming.(conditions{icond})(istride) = nan;
             end
             
         else
@@ -204,6 +218,8 @@ for icond = 1:length(conditions)
             AnalProprio.peakDeltaCOUPLEtiming.(conditions{icond})(istride) = nan;
             AnalProprio.peakDeltaCOUPLEcorr.(conditions{icond})(istride) = nan;
             AnalProprio.peakDeltaCOUPLEcorrtiming.(conditions{icond})(istride) = nan;
+            AnalProprio.maxFF.(conditions{icond})(istride)= nan;
+                AnalProprio.maxFFtiming.(conditions{icond})(istride) = nan;
         end%if;
     end %for
 end
