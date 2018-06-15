@@ -99,28 +99,26 @@ else
     handles.itrial=handles.itrial+1;
     
     
-    set(handles.stride,'string',num2str(handles.itrial))
+    set(handles.stride,'string',num2str(handles.itrial));
     
     
-    if isnan == handles.AnalProprio.onsetFF.STIM(handles.itrial)
-        set(handles.notvalid,'string','NOT VALID')
-        set(handles.notvalid,'backgroundcolor','r')
+    if isnan(handles.AnalProprio.onsetFF.STIM(handles.itrial))
+        set(handles.notvalid,'string','NOT VALID');
+        set(handles.notvalid,'backgroundcolor','r');
     else
-        set(handles.notvalid,'string','VALID')
-        set(handles.notvalid,'backgroundcolor','b')
+        set(handles.notvalid,'string','VALID');
+        set(handles.notvalid,'backgroundcolor','b');
     end
     
     if handles.AnalProprio.Response.STIM
-        set(handles.detected,'string','detected')
-        set(handles.detected,'backgroundcolor','g')
+        set(handles.detected,'string','detected');
+        set(handles.detected,'backgroundcolor','g');
     else
-        set(handles.detected,'string','not detected')
-        set(handles.detected,'backgroundcolor','r')
+        set(handles.detected,'string','not detected');
+        set(handles.detected,'backgroundcolor','r');
     end
     
-    
-    
-    axes(handles.axes_deltaENCO)
+    axes(handles.axes_deltaENCO);
     plot(handles.AnalProprio.deltaENCOcorr.STIM(:,handles.itrial),'b')
     a=axis;
     hold on
@@ -141,7 +139,13 @@ else
     handles.h(3)=line([x1 x1],[a(3) a(4)],'color','k');
     handles.h(4)=line([x2 x2],[a(3) a(4)],'color','g');
     
+    axes(handles.axes_bouton) 
+    plot(1:1000,handles.AnalProprio.bouton.STIM(1:1000,handles.itrial),'b')    
+    hold on 
+    plot(1001:2000,handles.AnalProprio.bouton.STIM(1001:2000,handles.itrial),'b:')    
+    a=axis; 
     x3=handles.AnalProprio.onsetFF.STIM(handles.itrial);
+    handles.h(5)=line([x3 x3],[a(3) a(4)],'color','m'); 
     
     axes(handles.axes_CONS_F)
     a=axis;
@@ -158,13 +162,13 @@ else
     handles.h(7)=line([x3 x3],[a(3) a(4)],'color','m');
     uistack(handles.h(7),'bottom')
     
-    %% RENDU ICI
-    set(handles.MaxError,'string',num2str(handles.resultat(handles.i,5)))
-    set(handles.MaxError1,'string',num2str(handles.resultat(handles.i,4)))
-    set(handles.ErrorTiming,'string',num2str(handles.variable.erreurmax2timing(handles.i)))
-    set(handles.peakcouple,'string',num2str(handles.resultat(handles.i,3)))
-    set(handles.peakcoupletiming,'string',num2str(handles.variable.peakFtiming(handles.i)))
-    set(handles.peakconsf,'string',num2str(handles.resultat(handles.i,1)))
+%% Update values on GUI
+    set(handles.MaxError,'string',num2str(handles.AnalProprio.peakDeltaENCO.STIM(handles.itrial)));
+    set(handles.MaxErrorCorr,'string',num2str(handles.AnalProprio.peakDeltaENCOcorr.STIM(handles.itrial)));
+    set(handles.ErrorTiming,'string',num2str(handles.AnalProprio.peakDeltaENCOcorrtiming.STIM(handles.itrial)));
+    set(handles.peakcouple,'string',num2str(handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)));
+    set(handles.peakcoupletiming,'string',num2str(handles.AnalProprio.peakDeltaCOUPLEcorrtiming.STIM(handles.itrial)));
+    set(handles.peakconsf,'string',num2str(AnalProprio.maxFF.STIM(handles.itrial)));
     
 end
 
@@ -178,11 +182,9 @@ function save_Callback(hObject, eventdata, handles)
 % hObject    handle to save (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-resultat=handles.resultat;
-variable=handles.variable;
+AnalProprio=handles.AnalProprio;
 
-save('ProprioAnalValidated','resultat','variable')
-xlswrite('AnalProprioValidated',resultat,'A2');
+save('ProprioAnalValidated','AnalProprio')
 
 
 
@@ -214,10 +216,17 @@ cond=get(handles.notvalid,'string');
 if strcmp(cond,'VALID')==1
     set(handles.notvalid,'string','NOT VALID')
     set(handles.notvalid,'backgroundcolor','r')
-    % elseif strcmp(cond,'VALID')==0
-    %    set(handles.notvalid,'string','VALID')
-    %     set(handles.notvalid,'backgroundcolor','g')
-    handles.resultat(handles.i,:)=nan;
+   
+    handles.AnalProprio.peakDeltaENCO.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaENCOtiming.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaENCOcorr.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaENCOcorrtiming.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaCOUPLE.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaCOUPLEtiming.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)=nan;
+    handles.AnalProprio.peakDeltaCOUPLEcorrtiming.STIM(handles.itrial)=nan;
+    handles.AnalProprio.maxFF.STIM(handles.itrial)=nan;
+
     
     
     set(handles.MaxError,'string','NaN')
@@ -249,47 +258,46 @@ while not(over)
         
         if move==1 || move==3
             set(handles.h([1 3]),'color','r')
-            [x,y]=ginput(1);
+            [x,~]=ginput(1);
             
-            if handles.direction==1;
-                x1=find(handles.variable.deltaENCO(x-40:x+40,handles.i)==min(handles.variable.deltaENCO(x-40:x+40,handles.i)));
+            if handles.direction==1
+                x1=find(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)==min(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)));
             elseif handles.direction==2
-                x1=find(handles.variable.deltaENCO(x-40:x+40,handles.i)==max(handles.variable.deltaENCO(x-40:x+40,handles.i)));
+                x1=find(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)==max(handles.AnalProprio.deltaENCOcorr.STIM(x-40:x+40,handles.itrial)));
             end
             x=round(x1+x-41);
-            handles.variable.erreurmax2timing(handles.i)=x;
-            handles.resultat(handles.i,5)=handles.variable.deltaENCOcorrected(x,handles.i);
-            handles.resultat(handles.i,4)=handles.variable.deltaENCO(x,handles.i);
-            set(handles.MaxError,'string',num2str(handles.resultat(handles.i,5)))
-            set(handles.MaxError1,'string',num2str(handles.resultat(handles.i,4)))
-            set(handles.ErrorTiming,'string',num2str(x))
+            handles.AnalProprio.peakDeltaENCOcorrtiming.STIM(handles.itrial)=x;
+            handles.AnalProprio.peakDeltaENCOcorr.STIM(handles.itrial)=handles.AnalProprio.deltaENCOcorr.STIM(x,handles.itrial);
+            handles.AnalProprio.peakDeltaENCO.STIM(handles.itrial)=handles.AnalProprio.deltaENCO.STIM(x,handles.itrial);
+            set(handles.MaxError,'string',num2str(handles.AnalProprio.peakDeltaENCO.STIM(handles.itrial)));
+            set(handles.MaxError1,'string',num2str(handles.AnalProprio.peakDeltaENCOcorr.STIM(handles.itrial)));
+            set(handles.ErrorTiming,'string',num2str(x));
             
-            set(handles.h([1 3]),'xdata',[x x])
-            set(handles.h([1 3]),'color','k')
+            set(handles.h([1 3]),'xdata',[x x]);
+            set(handles.h([1 3]),'color','k');
             
         elseif move==2 || move==4
-            set(handles.h([2 4]),'color','r')
-            [x,y]=ginput(1);
+            set(handles.h([2 4]),'color','r');
+            [x,~]=ginput(1);
             
-            if handles.direction==1;
-                x1=find(handles.variable.deltaCOUPLE(x-40:x+40,handles.i)==min(handles.variable.deltaCOUPLE(x-40:x+40,handles.i)));
+            if handles.direction==1
+                x1=find(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)==min(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)));
             elseif handles.direction==2
-                x1=find(handles.variable.deltaCOUPLE(x-40:x+40,handles.i)==max(handles.variable.deltaCOUPLE(x-40:x+40,handles.i)));
+                x1=find(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)==max(handles.AnalProprio.deltaCOUPLEcorr.STIM(x-40:x+40,handles.itrial)));
             end
-            x=round(x1+x-41);
-            handles.variable.peakFtiming(handles.i)=x;
-            handles.resultat(handles.i,3)=handles.variable.deltaCOUPLE(x,handles.i);
-            set(handles.peakcouple,'string',num2str(handles.resultat(handles.i,3)))
-            set(handles.peakcoupletiming,'string',num2str(x))
             
-            set(handles.h([2 4]),'xdata',[x x])
-            set(handles.h([2 4]),'color','g')
+            x=round(x1+x-41);
+            handles.AnalProprio.peakDeltaCOUPLEcorrtiming.STIM(handles.itrial)=x;
+            handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)=handles.handles.AnalProprio.deltaCOUPLEcorr.STIM(x,handles.itrial);
+            handles.AnalProprio.peakDeltaCOUPLE.STIM(handles.itrial)=handles.handles.AnalProprio.deltaCOUPLE.STIM(x,handles.itrial);
+
+            set(handles.peakcouple,'string',num2str(handles.AnalProprio.peakDeltaCOUPLEcorr.STIM(handles.itrial)));
+            set(handles.peakcoupletiming,'string',num2str(x));
+            
+            set(handles.h([2 4]),'xdata',[x x]);
+            set(handles.h([2 4]),'color','g');
             
         end
-        
-        
-        
-        
         
     else
         over=1;
@@ -306,13 +314,17 @@ function detected_Callback(hObject, eventdata, handles)
 
 cond=get(handles.detected,'string');
 
-if strcmp(cond,'detected')==1
+if strcmp(cond,'detected')
+    
     set(handles.detected,'string','not detected')
     set(handles.detected,'backgroundcolor','r')
-    handles.resultat(handles.i,6)=0;
-elseif strcmp(cond,'not detected')==1
+    handles.AnalProprio.Response.STIM(istride)=0;
+    
+elseif strcmp(cond,'not detected')
+    
     set(handles.detected,'string','detected')
     set(handles.detected,'backgroundcolor','g')
-    handles.resultat(handles.i,6)=1;
+    handles.AnalProprio.Response.STIM(istride)=1;
+    
 end
 guidata(hObject, handles);
