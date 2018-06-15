@@ -55,6 +55,17 @@ function GUI_analysis_JB_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for GUI_analysis_JB
 handles.output = hObject;
 
+% Find the rootpath of the GUI_analysis_JB codes and add all relevant
+% subpaths
+tooldir = which('GUI_analysis_JB.m');
+tooldir = tooldir(1:end-17);
+
+subfolders = {'FctMatlab','Organisation_groupe','Proprio','ResultGenerator','Traitement_donnees_Individuelles'};
+
+for ipath = 1:length(subfolders)
+    addpath([tooldir, subfolders{ipath}]);
+end
+
 %% my global variables
 handles.MainDir = uigetdir([],'Go get the parent folder for your project');
 cd(handles.MainDir)
