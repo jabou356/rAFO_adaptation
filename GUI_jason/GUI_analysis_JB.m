@@ -22,7 +22,7 @@ function varargout = GUI_analysis_JB(varargin)
 
 % Edit the above text to modify the response to help GUI_analysis_JB
 
-% Last Modified by GUIDE v2.5 12-Jun-2018 23:00:12
+% Last Modified by GUIDE v2.5 15-Jun-2018 16:36:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,8 +60,9 @@ handles.output = hObject;
 tooldir = which('GUI_analysis_JB.m');
 tooldir = tooldir(1:end-17);
 
-subfolders = {'FctMatlab','Organisation_groupe','Proprio','ResultGenerator','Traitement_donnees_Individuelles'};
-
+subfolders = {'FctMatlab','Organisation_groupe','Proprio','ResultGenerator'...
+    ,'Traitement_donnees_Individuelles', 'Help'};
+addpath(tooldir);
 for ipath = 1:length(subfolders)
     addpath([tooldir, subfolders{ipath}]);
 end
@@ -532,3 +533,10 @@ save('AnalProprio.mat')
 
 
 
+
+
+% --------------------------------------------------------------------
+function Help_Callback(hObject, eventdata, handles)
+% hObject    handle to Help (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
