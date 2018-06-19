@@ -57,7 +57,7 @@ for isubject=x:n
                 
             else
                 % If the trial is bad, set as Nan
-                AnalENCO.ENCO.(conditions{icond}){isubject}(:,k)=nan;
+                AnalENCO.ENCO.(conditions{icond}){isubject}(1:1000,k)=nan;
                 AnalENCO.dureeswing.(conditions{icond}){isubject}(k)=nan;
                 
             end
