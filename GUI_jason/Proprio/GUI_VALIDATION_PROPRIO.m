@@ -183,7 +183,7 @@ function save_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 AnalProprio=handles.AnalProprio;
 
-save('ProprioAnalValidated','AnalProprio')
+save('AnalProprio','AnalProprio')
 
 
 
