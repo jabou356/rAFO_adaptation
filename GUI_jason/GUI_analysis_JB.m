@@ -528,7 +528,7 @@ end
 data = [movingsortedCOUPLE(~isnan(movingsortedCOUPLE)) ; movingResponse(~isnan(movingsortedCOUPLE))]';
 [AnalProprio.Threshold.COUPLE,AnalProprio.Slope.COUPLE,AnalProprio.Incertainty.COUPLE] = createFit(data,'COUPLE');
 
-save('AnalProprio.mat')
+save('AnalProprio.mat','AnalProprio')
  
 
 
