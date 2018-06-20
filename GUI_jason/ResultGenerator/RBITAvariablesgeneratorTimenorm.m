@@ -60,7 +60,7 @@ for isubject=x:n
 
             else 
             % If the trial is bad, set as Nan                  
-            AnalTA.TA.(conditions{icond}){isubject}(:,k)=nan;             
+            AnalTA.TA.(conditions{icond}){isubject}(1:1000,k)=nan;             
             AnalTA.dureeswing.(conditions{icond}){isubject}(k)=nan;            
   
             end

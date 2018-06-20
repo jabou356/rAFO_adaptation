@@ -61,7 +61,7 @@ for isubject=x:n
                 
             else
                 % If the trial is bad, set as Nan
-                AnalSignal.(Signal).(conditions{icond}){isubject}(:,k)=nan;
+                AnalSignal.(Signal).(conditions{icond}){isubject}(1:1000,k)=nan;
                 AnalSignal.dureeswing.(conditions{icond}){isubject}(k)=nan;
                 
             end
