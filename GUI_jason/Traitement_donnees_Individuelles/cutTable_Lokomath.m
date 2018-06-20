@@ -1,232 +1,235 @@
-%programme make_data_tables
+function cutTable_Lokomath(config,fdata) 
+%CUTTABLE_LOKOMATH: This function is used to cut continuous data vectors 
+%into separate strides based on the the selected Sync_Channel. Also create
+%Cycle_Table with key events (FF or Reflexes). 
+%   INPUT: Config file generated with XXX FUNCTION. Filtered data.
+%   OUTPUT: None. Table_data saved..
+%   
+%   Initially developed by Martin Noel and Laurent Bouyer. Modified by
+%   Jason Bouffard
+%% Select the signal to use to create an offset in the data synchronisation
+Offsetchan = {'ENCO','ENCO','HS','COUPLE'};
+DiffOffsetchan = [0 1 0 0];
 
-%this program validates gait cycles and creates tables
 
-%Modifiée par Jason: 10 juillet 2012: add chan_gain ligne 136 et max cycle
-%lenght 2000 ligne 129
+%% Select data of the channel to be used for synchronisation
+signal=fdata(:,config.Sync_channel);
 
+if config.trig_lowpass > 0
+    % If you want to apply a lowpass filter to sync channel (e.g. EMG)
+    [b,a]=butter(config.trig_Nlowpass,config.trig_lowpass/config.sFz*2);
+    signal = filtfilt(b,a,abs(signal));
+end
 
-function cutTable_Lokomath 
-
-%% decouper cycles
-load('combined_data');
-[filename,pathfile]=uigetfile('*.*','Choisir fichier de calibration');
-load([pathfile,filename],'-mat')
-%creer un canal de trig a partir des plaques de force
-ftrigChannel=fdata(:,Sync_channel);
-
- validnum(1)=find(strcmp(chan_name,'ENCO')==1);
- validnum(2)=find(strcmp(chan_name,'HS')==1);
- validnum(3)=find(strcmp(chan_name,'COUPLE')==1);
-
-% Fc=10;
-% order=2;
-% [b,a] = butter(order,Fc/500);
-% ftrigChannel=filtfilt(b,a,trigChannel);
-
-%On détermine le minimum du signal
-minimum=min(ftrigChannel);
-maximum=max(ftrigChannel);
-
-%On définit la bande d'analyse
-ftrigChannel=(ftrigChannel-minimum)/maximum;
-band_analyse=0.50*abs(maximum-minimum);
-
-%On decime le signal pour accélérer le processus
-temp=ftrigChannel;
-signal=decimate(temp,5);
+if config.trig_diff > 0
+    % If you want to differentiate your sync channel
+    signal = diff(signal,config.trig_diff)*config.sFz;
+end
+% Decimate signal to accelerate the process
+signal=decimate(signal,5);
 
 %Parametre d'entré de la boucle indéfinie
-choix_refaire=['oui'];
+choice_redo=1;
 
-while strcmp(choix_refaire,'oui')
+while choice_redo == 1
     
-    %On clear certaines variables
-    clear identifiant
-    clear id
-    clear test1 test2 test3
-    clear no_pts_test
+    %% Manually define detection threshold, cycle duration and refractory period
     
-    %Définition du seuil de détection, de la durée d'un cycle et du début
-    %de la prériode d'analyse 10000=sampling rate * 10 secondes
-    figure(1);
-    clf
-    if 10000/5<length(signal)
-        debut_signal=round(length(signal)/10);
-        fin_signal=debut_signal+1000*10/5;
-        if fin_signal>length(signal)
-            fin_signal=length(signal);
-        end
-        plot(signal(debut_signal:fin_signal));
+    % show 10 seconds of data
+    myfig = figure('units','normalized','outerposition',[0 0 1 1]);
+    
+    
+    if config.sFz*20/5 < length(signal)
+        % if file duration is greater than 20 seconds (20 sec * sampling
+        % frequency / decimation factor), show 10 seconds in the middle 
+        debut_signal=round(length(signal)/2);
+        fin_signal=debut_signal+round(config.sFz*10/5);
+        
+        plot(signal(debut_signal:fin_signal))
     else
-        plot(signal(1:end));
+        % if file duration < 20 second, show all the data
+        plot(signal)
     end
 
-    %Définition du seuil
-    title('Definir le seuil de détection');
-    [x,seuil]=ginput(1);
+    % Define detection threshold
+    title('Define detection threshold')
+    [~,seuil]=ginput(1);
     
-    %Définition de la durée d'un cycle
-    title('Definir la durée d''un cycle (Cliquer le début)');
-    [x(1),y]=ginput(1);
-    title('Definir la durée d''un cycle (Cliquer la  fin)');
-    [x(2),y]=ginput(1);
+    % Define stride duration
+    title('Define stride duration: Click at the beginning of a stride')
+    [x(1),~]=ginput(1);
+    title('Define stride duration: Click at the end of a stride')
+    [x(2),~]=ginput(1);
     duree_cycle=round(x(2)-x(1));
     
-    %Définition du point de départ
-    title('Definir le point de depart');
+    %% Find data points when sync channel is...
+    if strcmp(config.trig_direction,'<')
+        %... below threshold if we sync on a descending signal
+    test=(signal<seuil);
+    else
+        %... above threshold if we sync on an ascending signal
+    test=(signal>seuil);
+    end
     
-
+    %% Define the beginning of each stride taking into accound the refractory period
+    istride=1; % 1st stride
+    identifiant_init(istride)=find(test==1,1,'first');
     
-    %On détermine les points qui se trouvent dans la bande d'analyse
-    test_up=(signal>seuil); %On regarde les point plus grand que le seuil minimum
+    % Define refractory period based on config file and stride duration
+    refractaire=round(config.pct_refractaire*duree_cycle);
     
-    %Position du premier cycle
-    j=1; %itère le nombre de cycle
-    UP=find(test_up==0); 
-    identifiant_init(j)=UP(1);
-    
-    %On définit la période réfractaire (50pct de la durée du cycles)
-    [pct_refractaire]=input('Quelle est la période réfractaire? (normalement 80%, écriver nombre entier ex 80)');
-    
-    pct_refractaire=pct_refractaire/100;
-    refractaire=round(pct_refractaire*duree_cycle);
-    
-    i=2; %itère le no. du point étudié
+    itest=2; %itère le no. du point étudié
     h = waitbar(0,'Please wait...');
     
-     
-    %------------------------------------------------------------------------%
-    % Génération d'un identifiant indiquant la début d'un nouveau cycle
-    %------------------------------------------------------------------------%
-    while i<length(test_up)-1
-        point1=test_up(i);
-        point2=test_up(i+1);
+    while itest<length(test)-1
         
-        %On test le point désiré
-        if (point1>point2)&&(i>(identifiant_init(j)+refractaire))
-            j=j+1; % On itere le nombre de pas
-            identifiant_init(j)=i;
-            i=i+refractaire;
+        
+        if (test(itest)<test(itest+1))&&(itest>(identifiant_init(istride)+refractaire))
+            %If we cross threshold, and we are further than the preceding
+            %stride than the refractory period: it is a new stride, we
+            %record the data point ID, and we progress further than the
+            %refractory period
+            
+            istride=istride+1; 
+            identifiant_init(istride)=itest; 
+            itest=itest+refractaire; 
+            
+        else
+        %If conditions are not met, we progress by 1 data point
+        
+        itest=itest+1;
+        
         end
         
-        %On passe au point suivant
-        i=i+1;
-        waitbar(i/length(test_up),h);
+        waitbar(itest/length(test),h);
     end
-    close(h);
     
-Cycle_Table=[];
-Cycle_Table(:,1)=[identifiant_init(1:end-1)*5];%*5 à cause du facteur de décimation
-Cycle_Table(:,2)=[identifiant_init(2:end)*5];
-Cycle_Table(:,3)=0; %set all gait cycles as non valid
+    
+    
+    %% We build Cycle_Table which contains: 
+    %1, beginning of the strides
+    %2, end of the stride
+    %3, is the stride valid?(no strides are valid before validation)
+    
+Cycle_Table(:,1)= identifiant_init(1:end-1)*5;% *5 because of decimation factor
+Cycle_Table(:,2)= identifiant_init(2:end)*5;
+Cycle_Table(:,3) = 0;
 
-    figure(1)
+close(myfig)
+    myfig = figure('units','normalized','outerposition',[0 0 1 1]);
+    % We show the cycle duration and ask if the user is happy
     plot(1:size(Cycle_Table,1),Cycle_Table(:,2)-Cycle_Table(:,1),'bo')
     
-choix_refaire=menu('Voulez vous redéfinir le seuil du foot switch?','oui','non');
+choice_redo = menu('Do you want to redefine the threshold','yes','no');
+% if not happy, do it again
+close(h,myfig) % close waitbar and figure
 end
 
+%% Create an offset in the data
+Choice_offset=1; %'Do you want to create an offset of the HS position'
 
-clf
+while Choice_offset==1 || Choice_offset==2
+    
+myfig = figure('units','normalized','outerposition',[0 0 1 1]);
 
-Choix_offset=1;
+for istride=10:100:size(Cycle_Table,1)
+%% Show one stride, every 100 stride, starting at the 10th    
+    for isignal = 1:length(Offsetchan)
+        % for all signals chosen as offsetchan
+    subplot(length(Offsetchan),1,isignal)
+    signal = find(strcmp(config.chan_name,Offsetchan{isignal}));
+    
+    if DiffOffsetchan(isignal) == 0
+        % if you don't want to differentiate it, just show the chan
+    plot(fdata(Cycle_Table(istride,1):Cycle_Table(istride,2),signal),'b')
+    hold on
+    title(Offsetchan{isignal})
+    else
+        % if you want to differentiate it, do it with the defined order
+    plot(diff(fdata(Cycle_Table(istride,1):Cycle_Table(istride,2),signal),DiffOffsetchan(isignal)),'b')
+    hold on
+    title(['diff(', Offsetchan{isignal}, '), ',num2str(DiffOffsetchan(isignal)), ' Order'])
+    end
+    
+    end
 
-while Choix_offset==1
-clf
-for j=10:100:size(Cycle_Table,1)
-    subplot(4,1,1)
-plot(fdata(Cycle_Table(j,1):Cycle_Table(j,2),validnum(1)),'b')
-hold on
-
-title('ENCO')
-
-subplot(4,1,2)
-plot(diff(fdata(Cycle_Table(j,1):Cycle_Table(j,2),validnum(1))),'b')
-hold on
-title('Velocity')
-
-subplot(4,1,3)
-plot(fdata(Cycle_Table(j,1):Cycle_Table(j,2),validnum(2)),'b')
-hold on
-title('HS')
-
-subplot(4,1,4)
-plot(rawdata(Cycle_Table(j,1):Cycle_Table(j,2),validnum(3)),'b')
-hold on
-title('COUPLE')
 end
 
-Choix_offset=menu('Do you want to create an offset of the HS position','Yes','No')
+%% Based on what you see, do you want to create an offset?
+Choice_offset = menu('Do you want to create an offset of the HS position','Yes, I want to choose when the strides finish',...
+    'Yes, I want to choose when the strides start','No');
 
-if Choix_offset==1
-    title('put the ginput where you would like the stride end')
-    debut=ginput(1);
-    debut=round(debut(1));
+if Choice_offset == 1
+    %% If you want to create an offset based on the end of the stride
+    title('put the ginput where you would like the stride end, focus on one stride')
+    desired=ginput(1);
+    desired=round(desired(1));
     
-    title('put the ginput where the stride presently stop')
-    fin=ginput(1);
-    fin=round(fin(1));
+    title('put the ginput where the stride presently stop, focus on one stride')
+    present=ginput(1);
+    present=round(present(1));
     
-    offset=fin-debut;
+    % create the offset
+    offset=present-desired;
     Cycle_Table(2:end,1)=Cycle_Table(2:end,1)-offset;
     Cycle_Table(2:end,2)=Cycle_Table(2:end,2)-offset;
     
+elseif Choice_offset == 2
+    %% If you want to create an offset based on the beginning of the stride
+    title('put the ginput where you would like the strides to begin')
+    offset=ginput(1);
+    offset=round(offset(1));
     
+    % apply the offset
+    Cycle_Table(2:end,1)=Cycle_Table(2:end,1) + offset;
+    Cycle_Table(2:end,2)=Cycle_Table(2:end,2) + offset;
+    
+end 
+close(myfig)
+
 end
 
+%% Create the tables
 
-end
-
-%% create the generic tables padded with NaNs
-numchan=size(fdata,2);    
 h=waitbar(0,'please wait');
-vector_length=2000; %max(Cycle_Table(:,2)-Cycle_Table(:,1))+1;%max duration of a gait cycle
-k=0;
-for j=1:numchan
-        waitbar(j/numchan,h,['processing ',chan_name(j)]);
-    s=['Table',num2str(j),'=[];'];eval(s); %creates an empty table
-    for i=1:size(Cycle_Table,1)
-        the_onset=Cycle_Table(i,1);
-        the_end=Cycle_Table(i,2);
-        temp=fdata(the_onset:the_end,j)*chan_gain(j); %channel(j) %****ATTENTION
-        if size(temp,1)<vector_length
-            temp(end+1:vector_length)=nan;
-        else
-            temp=temp(1:vector_length);
-        end;
-        s=['Table',num2str(j),'=[Table',num2str(j),',temp];'];eval(s); %adds new cycle to table
-    end; %for i    
-end; %for j
+for istride=size(Cycle_Table,1):-1:1
+    
+    waitbar(istride/size(Cycle_Table,1),h);
+               
+        Table{istride} = fdata(Cycle_Table(istride,1):Cycle_Table(istride,2),:).*config.chan_gain;
+   
+end %for istride
+
 close(h);
 
 %% create reflex indexes
 Cycle_Table(:,4)=0; %fourth column is reflex cycle or not
 
-if ISRFLX_channel>0 %if there are reflexes
-    s=['temp_Table=Table',num2str(ISRFLX_channel),';'];eval(s);
-    for i=1: size(temp_Table,2)
-        if max(temp_Table(detect_onset:detect_offset,i)>detect_level)
-            Cycle_Table(i,4)=1;
-        end;
-        %k=waitforbuttonpress;
-    end;
-end;
+if config.ISRFLX_channel>0 %if there are reflexes
+        
+    for istride = size(Cycle_Table,1):-1:1
+        
+        if max(abs(Table{istride}(:,config.ISRRFLX_channel)))>config.detect_level %  By pass detect_onset, detect offset. S'il y a un reflexe mal placé, je veux le savoir
+            Cycle_Table(istride,4)=1;
+        end
+    end
+    
+end
 
 %% create FF indexes
 Cycle_Table(:,5)=0; %fifth column is force field cycle or not
 
-if ISFF_channel>0 %if there are FF
-    s=['temp_Table=abs(Table',num2str(ISFF_channel),')',';'];eval(s);
-    for i=1: size(temp_Table,2)
-        if max(temp_Table(FFdetect_onset:FFdetect_offset,i)>FFdetect_level)
-            Cycle_Table(i,5)=1;
-        end;
-        %k=waitforbuttonpress;
-    end;
-end;
+if config.ISFF_channel>0 %if there are FF
+    
+    for istride= size(Cycle_Table,1):-1:1
+        
+        if max(abs(Table{istride}(:,config.ISFF_channel)))>config.FFdetect_level % bypass FFdetect_onset et FFdetect_offset. Dans fichier de calibration, c,est tout le cycle
+            Cycle_Table(istride,5)=1;
+        end
+    end
+end
 
 
 
 %% save tables & stimpos
-save('Table_data','Table*','Cycle_Table','numchan','chan_name');
+save('Table_data','Table','Cycle_Table','config');

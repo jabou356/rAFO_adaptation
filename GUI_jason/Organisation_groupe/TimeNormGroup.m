@@ -1,42 +1,24 @@
-function [ datanorm,databin,Cycle_Table] = TimeNormGroup( data,Cycle_Table )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-n=find(isnan(Cycle_Table(1,1,:))==1);
-    if n>0
-        n=n(1)-1;
-    else
-        n=30;
-    end
-    
-    for i=1:n
-        temp=find(isnan(Cycle_Table(1,:,i))==1);
-        
-        if temp>0
-        nbrcycle=temp(1)-1;
-        else
-            nbrcycle=size(Cycle_Table(1,:,i),2);
-        end
-        
-        for j=1:nbrcycle
-            
-            dureecycle(j,i)=Cycle_Table(2,j,i)-Cycle_Table(1,j,i)+1;
-            
-            if dureecycle(j,i)<1500
-            
-            datanorm(:,j,i)=interp1(1:dureecycle(j,i),data(1:dureecycle(j,i),j,i),1:(dureecycle(j,i)-1)/999:dureecycle(j,i));
-            else
-            datanorm(:,j,i)=interp1(1:1500,data(1:1500,j,i),1:(1499)/999:1500);
-            
-            end
-            
-            for k=1:50
-                databin(k,j,i)=mean(datanorm((k-1)*20+1:k*20,j,i),1);
-            end
-        
-    end
-            
-        
-        
+function [GroupData] = TimeNormGroup(GroupData)
+%TimeNormGroup Interpolate GroupTables to 1000 data points
+%   Input and output: GroupData structure: Contains Signals to interpolate
+%   and Cycle_Table matrix containing onset and offset of each stride
 
+Signal = input('Which signals would you like to integrate? Write {''SignalName1'', ''SignalName2'', ..., ''SignalNameN''');
+
+
+for isubject=1:length(GroupData.Cycle_Table)
+    
+    for istride=1:size(GroupData.Cycle_Table{isubject},2)
+        
+        dureecycle=GroupData.Cycle_Table{isubject}(2,istride)-GroupData.Cycle_Table{isubject}(1,istride);
+        x = 1:dureecycle+1;
+        
+        for isignal = 1:length(Signal)
+            
+            y = GroupData.(Signal{isignal}){isubject}{istride};
+            GroupData.([Signal{isignal}, 'NORM']){isubject}(:,istride)=interp1(x,y,1:(dureecycle)/999:dureecycle+1);
+            
+        end      
+    end
 end
 

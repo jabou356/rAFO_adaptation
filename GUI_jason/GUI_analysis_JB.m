@@ -22,7 +22,7 @@ function varargout = GUI_analysis_JB(varargin)
 
 % Edit the above text to modify the response to help GUI_analysis_JB
 
-% Last Modified by GUIDE v2.5 06-Apr-2017 19:54:42
+% Last Modified by GUIDE v2.5 15-Jun-2018 16:36:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,33 @@ function GUI_analysis_JB_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for GUI_analysis_JB
 handles.output = hObject;
 
+% Find the rootpath of the GUI_analysis_JB codes and add all relevant
+% subpaths
+tooldir = which('GUI_analysis_JB.m');
+tooldir = tooldir(1:end-17);
+
+subfolders = {'FctMatlab','Organisation_groupe','Proprio','ResultGenerator'...
+    ,'Traitement_donnees_Individuelles', 'Help'};
+addpath(tooldir);
+for ipath = 1:length(subfolders)
+    addpath([tooldir, subfolders{ipath}]);
+end
+
+%% my global variables
+handles.MainDir = uigetdir([],'Go get the parent folder for your project');
+cd(handles.MainDir)
+% Load or generate default config file
+if exist([handles.MainDir, '/config.mat'],'file')
+    load([handles.MainDir, '/config.mat'])
+    handles.config = config;
+    disp('Config file loaded')
+else
+config = DefaultConfigGen;
+handles.config = config;
+save([handles.MainDir, '/config.mat'],'config');
+disp('Config file created')
+end
+    
 % Update handles structure
 guidata(hObject, handles);
 
@@ -72,44 +99,18 @@ function varargout = GUI_analysis_JB_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+%% MY FUNCTIONS START HERE
 
-% --------------------------------------------------------------------
-function Combine_Group_Data_Callback(hObject, eventdata, handles)
-% hObject    handle to Combine_Group_Data (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-GroupTablesGeneratorJB
-disp('GroupData saved')
-
+%% Single subject data preprocessing / processing
 % --------------------------------------------------------------------
 function convert_raw_to_mat_Callback(hObject, eventdata, handles)
 % hObject    handle to convert_raw_to_mat (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% This function import WinVisio .raw files into .mat format
 Read_WinVisio_LB
 disp('file *.mat saved')
-
-
-% --------------------------------------------------------------------
-function Cut_Table_Lokomath_Callback(hObject, eventdata, handles)
-% hObject    handle to Cut_Table_Lokomath (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-cutTable_Lokomath
-disp('Table_data saved')
-
-
-% --------------------------------------------------------------------
-function Cut_Table_Peak_Velocity_Callback(hObject, eventdata, handles)
-% hObject    handle to Cut_Table_Peak_Velocity (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-cutTable_AnkleVelocity
-disp('Table_data saved')
-
 
 % --------------------------------------------------------------------
 function Combine_WinVisio_data_Callback(hObject, eventdata, handles)
@@ -117,18 +118,70 @@ function Combine_WinVisio_data_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-combine_data_WinVisio
+% This function combine multiple .mat files and process data (filters,
+% gain, etc.)
+%% Load calibration
+%[fn,pn]=uigetfile('*.mat','select the calibration file');
+%config=load([pn,fn],'-mat');
+
+% cd the subject directory
+cd(uigetdir([],'Go to your subject directory'))
+
+if exist('config.mat','file')
+    %If there is a subject specific config file, load it
+    load('config.mat');
+    disp('Subject specific config')
+else
+    
+    %If there is no subject specific config file, load the generic one
+    config = handles.config;
+    disp('Generic config')
+end
+
+combine_data_WinVisio(config)
 disp('combined file saved')
 
+% --------------------------------------------------------------------
+function Cut_Table_Lokomath_Callback(hObject, eventdata, handles)
+% hObject    handle to Cut_Table_Lokomath (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%This function cut processed data into individual strides
+%% load config file
+% cd the subject directory
+cd(uigetdir([],'Go to your subject directory'))
+
+if exist('config.mat','file')
+    %If there is a subject specific config file, load it
+    load('config.mat');
+    disp('Subject specific config')
+else
+    
+    %If there is no subject specific config file, load the generic one
+    config = handles.config;
+    disp('Generic config')
+end
+%[filename,pathfile]=uigetfile('*.*','Choisir fichier de calibration');
+%config = load([pathfile,filename],'-mat');
+
+%% Load combined data file in the current folder
+load('combined_data');
+
+%% Cut and save tables
+cutTable_Lokomath(config, fdata);
+disp('Table_data saved')
 
 % --------------------------------------------------------------------
 function Remove_bad_superpose_Callback(hObject, eventdata, handles)
 % hObject    handle to Remove_bad_superpose (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% This function open a GUI to clean individual data files
 data = load('Table_data.mat');
 
-Signal = input('Which signals would you like to show for validation?{''Sig1'',''Sig2'',''etc''}');
+Signal = input('Which signals would you like to show for validation?{''ENCO'',''CONS_F'',''etc''}');
 
 CTRL = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 0);
 FF = find( data.Cycle_Table(:,4) == 0 & data.Cycle_Table(:,5) == 1);
@@ -166,29 +219,19 @@ save('Table_data.mat')
 
 disp('Table_data saved')
 
-
+%% Group data organization
 % --------------------------------------------------------------------
-function Close_files_Callback(hObject, eventdata, handles)
-% hObject    handle to Close_files (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-clear all
-
-
-% --------------------------------------------------------------------
-function Synchro_Pushoff_Callback(hObject, eventdata, handles)
-% hObject    handle to Synchro_Pushoff (see GCBO)
+function Combine_Group_Data_Callback(hObject, eventdata, handles)
+% hObject    handle to Combine_Group_Data (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% This function combine multiple subjects data into a single structure/cell
+% array
+cd(handles.MainDir)
 
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-[SyncTiming, SyncThreshold] = SyncPushoff(GroupData.Cycle_Table,GroupData.ENCO);
-save('SyncData','SyncTiming','SyncThreshold'); 
-disp('SyncData saved')
-
+GroupTablesGeneratorJB
+disp('GroupData saved')
 
 % --------------------------------------------------------------------
 function Idendification_Cycles_Callback(hObject, eventdata, handles)
@@ -196,166 +239,90 @@ function Idendification_Cycles_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% This function identify critical cycles as last baseline, FF or POST
+% strides, presences of RFLX, and timing of FF within each stride
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données GroupData');
 load([pn,fn],'-mat');
+cd(pn)
 
 if isfield(GroupData,'CONS_F')
-[FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table,GroupData.CONS_F);
+[CTRLlast, FFlast, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table,GroupData.CONS_F);
 else
-[FF1, POST1, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table);
+[CTRLlast, FFlast, fin, RFLX, stimtiming]=cyclesIdentifiant(GroupData.Cycle_Table);
 end
 
 
-save('CyclesCritiques','FF1','POST1','fin','RFLX','stimtiming'); 
+save('CyclesCritiques','CTRLlast','FFlast','fin','RFLX','stimtiming'); 
 disp('CyclesCritiques saved')
 
-
-
-
 % --------------------------------------------------------------------
-function BaselineAnkleVariables_Callback(hObject, eventdata, handles)
-% hObject    handle to BaselineAnkleVariables (see GCBO)
+function Synchro_Pushoff_Callback(hObject, eventdata, handles)
+% hObject    handle to Synchro_Pushoff (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier de groupe baseline1')
-load([pathname,filename])
-
-[ENCO,baseline2,baseline1,cycleID,BASELINE2end,BASELINE1end,deltaENCO, meanABSError,dureeswing,peakDorsi,peakPlant,peakDorsitiming,peakPlanttiming, deltaBaseline1, meanABSdeltabaseline1]=BaselineAnkletimenorm(GroupData.Cycle_Table,GroupData.ENCO);
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO');
-save(filename,'ENCO','baseline2','baseline1','cycleID','BASELINE2end','BASELINE1end','deltaENCO', 'meanABSError','dureeswing','peakDorsi','peakPlant','peakDorsitiming','peakPlanttiming', 'deltaBaseline1', 'meanABSdeltabaseline1'); 
-
-disp('BaselineError saved')
-
-
-% --------------------------------------------------------------------
-function BaselineTAVariables_Callback(hObject, eventdata, handles)
-% hObject    handle to BaselineTAVariables (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-[filename,pathname]=uigetfile('*.mat','Sélectionnez votre fichier de groupe baseline1')
-load([pathname,filename])
-
-[TA, baseline1, cycleID, BASELINE1end, BASELINE2end, RMSburstTA, MEANburstTA,debutbouffee, finbouffee, peakTA]=BaselineTA(GroupData.Cycle_Table,GroupData.RTA)
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalTA');
-save(filename,'TA','baseline1','cycleID','BASELINE2end','BASELINE1end','RMSburstTA','MEANburstTA','debutbouffee', 'finbouffee', 'peakTA'); 
-
-disp('BaselineTA saved')
-
-
-% --------------------------------------------------------------------
-function Group_Ankle_Kinematic_Analysis_timenorm_Callback(hObject, eventdata, handles)
-% hObject    handle to Group_Ankle_Kinematic_Analysis_timenorm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
+% This function is used to synchronize data on the middle of the PushOff
+% based on kinematic data %%% COULD IT BE GENERALIZED TO OTHER
+% SIGNALS/EVENTS?
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
+cd(pn)
 
+[SyncTiming, SyncThreshold, stimtimingSync] = SyncPushoff(GroupData.Cycle_Table,GroupData.ENCO);
+save('SyncData','SyncTiming','SyncThreshold', 'stimtimingSync'); 
+disp('SyncData saved')
 
-[ENCO,baseline2,cycleID,BASELINE2end,CHAMPend,POSTend,deltaENCO,MaxDorsiError,MaxPlantError,meanABSError,meanSIGNEDError,meanUndershoot,percentUndershoot,meanOvershoot,percentOvershoot,dureeswing,peakDorsi,peakPlant,MaxDorsiErrortiming,MaxPlantErrortiming,peakDorsitiming,peakPlanttiming,CoG, CoGrelatif, normPFC]=ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO);
+%% Results generators
+% --------------------------------------------------------------------
+function KinematicAnalysis_Callback(hObject, eventdata, handles)
+% hObject    handle to KinematicAnalysis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
-clear GroupData
+% This function generates Kinematic outcome measures for FF adaptation
+
+% Load GroupData
+[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
+load([pn,fn],'-mat');
+cd(pn)
+
+% Load SyncData
+if handles.config.useSync
+    SyncData = load([pn,'SyncData.mat']);
+else
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+AnalENCO = ENCOvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.ENCO, conditions, criticalCycles, SyncData);
 
 [filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO');
-save(filename,'ENCO','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaENCO','MaxDorsiError','MaxPlantError','meanABSError','meanSIGNEDError','meanUndershoot','meanOvershoot', 'percentUndershoot', 'percentOvershoot','dureeswing', 'peakDorsi', 'peakPlant', 'MaxDorsiErrortiming', 'MaxPlantErrortiming', 'peakDorsitiming', 'peakPlanttiming','CoG','CoGrelatif','normPFC'); 
+save(filename,'AnalENCO'); 
 
 disp('AnalENCO saved')
 
 
 % --------------------------------------------------------------------
-function Validation_GroupSync_Callback(hObject, eventdata, handles)
-% hObject    handle to Validation_GroupSync (see GCBO)
+function TAAnalysis_Callback(hObject, eventdata, handles)
+% hObject    handle to TAAnalysis (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-Signal=input('Quel signal voulez-vous valider? ');
-
-s=['GroupData.Cycle_Table=ValidationGroup(GroupData.',Signal,',GroupData.Cycle_Table);'];eval(s);
-
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier GroupData');
-save(filename,'GroupData');
-
-
-% --------------------------------------------------------------------
-function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
-% hObject    handle to GroupData_TimeNorm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-Signal=input('Quel signal voulez-vous valider? ');
-
-s=['[GroupData.',Signal,'Norm,GroupData.',Signal,'Bin,GroupData.Cycle_Table]=TimeNormGroup(GroupData.',Signal,',GroupData.Cycle_Table);'];eval(s);
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier GroupDataNorm');
-save(filename,'GroupData');
-
-
-% --------------------------------------------------------------------
-function AnalENCO_Blanchette2011_Callback(hObject, eventdata, handles)
-% hObject    handle to AnalENCO_Blanchette2011 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-[ENCO,Velocity,dureecycle,deltaENCO,deltaVelocity,meanSIGNEDError,meanABSError,MaxPlantError,MaxDorsiError,meanSIGNEDErrorVelocity,meanABSErrorVelocity,MaxPlantErrorVelocity,MaxDorsiErrorVelocity,MaxPlantErrortiming] = AnalENCO_Blanchette( GroupData.ENCOBin,GroupData.Cycle_Table )
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO_Blanchette');
-save(filename,'ENCO','Velocity','dureecycle','deltaENCO','deltaVelocity','meanSIGNEDError','meanABSError','MaxPlantError','MaxDorsiError','meanSIGNEDErrorVelocity','meanABSErrorVelocity','MaxPlantErrorVelocity','MaxDorsiErrorVelocity','MaxPlantErrortiming');
-
-
-% --------------------------------------------------------------------
-function AnalCOUPLE_mNoel_Callback(hObject, eventdata, handles)
-% hObject    handle to AnalCOUPLE_mNoel (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-[COUPLE,rmsCOUPLEtotal,rmsCOUPLE020,rmsCOUPLE20100,meanCOUPLEtotal,meanCOUPLE020,meanCOUPLE20100] = AnalCOUPLE_Noel( GroupData.COUPLENorm,GroupData.Cycle_Table )
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalENCO_Blanchette');
-save(filename,'COUPLE','rmsCOUPLEtotal','rmsCOUPLE020','rmsCOUPLE20100','meanCOUPLEtotal','meanCOUPLE020','meanCOUPLE20100');
-
-
-% --------------------------------------------------------------------
-function Group_CONSF_Analysis_timenorm_Callback(hObject, eventdata, handles)
-% hObject    handle to Group_CONSF_Analysis_timenorm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-choice=menu('Veux-tu travailler avec des données de groupe ou individuel','GroupeCONS_F','Individuel');
-
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
-load([pn,fn],'-mat');
-
-[CONS_F,peakCONS_F,peakCONS_Ftiming,onsetCONS_Ftiming,BASELINE2end,CHAMPend,POSTend,cycleID]=CONS_Fvariablesgeneratortimenorm(GroupData.Cycle_Table,GroupData.CONS_F);
-
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalCONS_Ftimenorm');
-save(filename,'CONS_F','peakCONS_F','peakCONS_Ftiming','onsetCONS_Ftiming','BASELINE2end','CHAMPend','POSTend','cycleID');
-
-
-% --------------------------------------------------------------------
-function TAAnal_TimeNorm_Callback(hObject, eventdata, handles)
-% hObject    handle to TAAnal_TimeNorm (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+%This function generates TA outcome measures for FF adaptation
 
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
 load([pn,fn],'-mat');
+cd(pn)
 
 side=menu('Do you want to Analyse right or left TA?','Right (RTA)','Left (LTA)','Just TA (TA)');
 if side==1
@@ -379,31 +346,197 @@ else
     AnalTA=[];
 end
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,pn,AnalTA)
+if handles.config.useSync
+    SyncData = load([pn,'SyncData.mat']);
+else 
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+
+[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,conditions,criticalCycles,pn,AnalTA,SyncData);
 
 save([pn, 'AnalRBITA.mat'], 'AnalTA'); 
 
 disp('AnalRBITA saved')
 
-TAratiovariable = EMGratioCode(GroupData,AnalTA, pn);
+TAratiovariable = EMGratioCode(GroupData,AnalTA, criticalCycles, SyncData, pn);
 
 save([pn, 'TAratio.mat'], 'TAratiovariable'); 
 
 disp('TAratio saved')
 
-
 % --------------------------------------------------------------------
-function COUPLEtimenorm_Callback(hObject, eventdata, handles)
-% hObject    handle to COUPLEtimenorm (see GCBO)
+function GENERICAnalysis_Callback(hObject, eventdata, handles)
+% hObject    handle to GENERICAnalysis (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% This function generates GENERIC SIGNAL outcome measures for FF adaptation
+
+% Load GroupData
 [fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
 load([pn,fn],'-mat');
+cd(pn)
 
-[COUPLE, baseline2, cycleID, BASELINE2end, CHAMPend, POSTend,deltaCOUPLE, peakCOUPLE, peakCOUPLEtiming]=COUPLEtimenormvariablesgenerator(GroupData.Cycle_Table,GroupData.COUPLE)
+% Load SyncData
 
-clear GroupData
+if handles.config.useSync
+    SyncData = load([pn,'SyncData.mat']);
+else % not tested
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
 
-[filename, pathname]=uiputfile('*.mat','Placez le fichier AnalTA');
-save(filename,'COUPLE','baseline2','cycleID','BASELINE2end','CHAMPend','POSTend','deltaCOUPLE', 'peakCOUPLE','peakCOUPLEtiming');
+% load Cycles critiques (onset and end of each condition)
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+Signal = input ('Identify the Signal you want to analyse');
+
+GenericAnal=GenericAnalysis(GroupData.Cycle_Table, GroupData.(Signal), conditions, criticalCycles, SyncData, Signal);
+
+[filename, pathname]=uiputfile('*.mat','Placez le fichier GenericAnal');
+save(filename,'GenericAnal');
+
+
+% --------------------------------------------------------------------
+function GENERICAnalysisEMG_Callback(hObject, eventdata, handles)
+% hObject    handle to GENERICAnalysisEMG (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%This function generates GENERIC EMG outcome measures for FF adaptation
+
+[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
+load([pn,fn],'-mat');
+cd(pn)
+
+%Defin the signal you want to analyse
+Signal = input ('Identify the Signal you want to analyse');
+
+data=Filter_RBI(GroupData.(Signal),9,3,1);
+ 
+if handles.config.useSync
+    SyncData = load([pn,'SyncData.mat']);
+else 
+    %If you don't want to use SyncData, use the beginning of each stride
+    for isubject = 1:length(GroupData.Cycle_Table)
+       SyncData.SyncTiming{isubject}(1:size(GroupData.Cycle_Table{isubject},2))=1;
+       SyncData.stimtimingSync{isubject}=cellfun(@(x)(find(x == min(x))),GroupData.CONS_F{isubject});
+    end
+end
+
+load([pn,'CyclesCritiques.mat']);
+criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
+
+conditions = {'Baseline2', 'CHAMP', 'POST'};
+
+GenericAnalEMG=GenericAnalysis(GroupData.Cycle_Table, data, conditions, criticalCycles, SyncData, Signal);
+
+[filename, pathname]=uiputfile('*.mat','Placez le fichier GenericAnal');
+save(filename,'GenericAnalEMG');
+
+disp('GenericEMG saved')
+
+% --------------------------------------------------------------------
+function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
+% hObject    handle to GroupData_TimeNorm (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% This function generate Time normalized vectors for each stride of each
+% participant
+
+[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
+load([pn,fn],'-mat');
+cd(pn)
+
+GroupData=TimeNormGroup(GroupData);
+
+save([pn,fn],'GroupData');
+
+
+%% Proprioception analyses
+% --------------------------------------------------------------------
+function AnalProprio_Callback(hObject, eventdata, handles)
+% hObject    handle to AnalProprio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cd(uigetdir([],'Go to your subject directory'))
+
+load('Table_data.mat')
+
+AnalProprio = ProprioAnalysis(Table, Cycle_Table, config);
+save('AnalProprio.mat','AnalProprio');
+
+% --------------------------------------------------------------------
+function ValidationProprio_Callback(hObject, eventdata, handles)
+% hObject    handle to ValidationProprio (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cd(uigetdir([],'Go to your subject directory'))
+
+GUI_VALIDATION_PROPRIO
+
+% --------------------------------------------------------------------
+function ProprioOutcome_Callback(hObject, eventdata, handles)
+% hObject    handle to ProprioOutcome (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cd(uigetdir([],'Go to your subject directory'))
+
+load('AnalProprio.mat');
+
+% Compute Outcomes for ENCO signal
+[sortedENCO,I] = sort(AnalProprio.peakDeltaENCOcorr.STIM);
+Response = AnalProprio.Response.STIM(I);
+
+for itrial = 1 :length(sortedENCO)-3
+    movingsortedENCO (itrial) = mean(abs(sortedENCO(itrial:itrial+3)));    
+    movingResponse (itrial) = mean(Response(itrial:itrial+3)); 
+end
+
+data = [movingsortedENCO(~isnan(movingsortedENCO)) ; movingResponse(~isnan(movingsortedENCO))]';
+[AnalProprio.Threshold.ENCO,AnalProprio.Slope.ENCO,AnalProprio.Incertainty.ENCO] = createFit(data,'ENCO');
+
+% Compute Outcomes for COUPLE signal
+[sortedCOUPLE,I] = sort(AnalProprio.peakDeltaCOUPLEcorr.STIM);
+Response = AnalProprio.Response.STIM(I);
+
+for itrial = 1 :length(sortedCOUPLE)-3
+    movingsortedCOUPLE (itrial) = mean(abs(sortedCOUPLE(itrial:itrial+3)));    
+    movingResponse (itrial) = mean(Response(itrial:itrial+3)); 
+end
+
+data = [movingsortedCOUPLE(~isnan(movingsortedCOUPLE)) ; movingResponse(~isnan(movingsortedCOUPLE))]';
+[AnalProprio.Threshold.COUPLE,AnalProprio.Slope.COUPLE,AnalProprio.Incertainty.COUPLE] = createFit(data,'COUPLE');
+
+save('AnalProprio.mat','AnalProprio')
+ 
+
+
+
+
+
+% --------------------------------------------------------------------
+function Help_Callback(hObject, eventdata, handles)
+% hObject    handle to Help (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

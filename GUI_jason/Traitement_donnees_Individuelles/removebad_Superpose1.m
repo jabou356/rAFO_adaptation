@@ -1,131 +1,177 @@
-
 function bad_cycles = removebad_Superpose1( data, signal, cycles, type, varargin)
+%REMOVEBAD_SUPERPOSE1: This function is used to remove bad cycles using
+%selected signals.
+%   INPUT: data: matrix or Cell array of individual strides.  Config file generated with XXX FUNCTION. Filtered data.
+%'flagDuree' plot individual strides duration for validation.
+%   OUTPUT: None. Table_data saved..
+%
+%   Initially developed by Martin Noel and Laurent Bouyer. Modified by
+%   Jason Bouffard
 
-% Lorsque cette fonction est utilisé dans un fichier de groupe, il y a
-% seulement un signal
 if strcmp(type, 'Group')
-    temp=data;
-    clear data
-    data.Table1=temp;
-    data.chan_name=signal;
-    clear temp
+    % If we work with Group data, we only validate one signal
+    data.config.chan_name=signal;
     
-    if sum(strcmp(varargin, 'flagDuree')) == 1    
-    data.Cycle_Table(cycles,1) = 1;
-    data.Cycle_Table(cycles,2)=cell2mat(varargin(find(strcmp(varargin,'flagDuree'))+1));
+    if sum(strcmp(varargin, 'flagDuree')) == 1
+        % If we work with GroupData and have flag Duree, Cycle duration is
+        % entered as the variable following the 'flagDuree' TO CHANGE
+        data.Cycle_Table(cycles,1) = 1;
+        data.Cycle_Table(cycles,2)=cell2mat(varargin(find(strcmp(varargin,'flagDuree'))+1));
     end
     
 end
 
-numchan=length(signal);
-
-
-for isignal=1:numchan
+ 
+myfig = figure('units','normalized','outerposition',[0 0 1 1], ...
+    'Name', 'Select bad strides, and click in the white space when finished')
+% Determine the number of additional needed for 'flagDuree' and/or
+% 'flagMean'
+otherplots = sum(strcmp(varargin, 'flagDuree')|strcmp(varargin, 'flagMean'));
+bad_cycles=[];
+%% For each signal, configure the data to be ploted
+for isignal=length(signal):-1:1
     
-    % Trouve le numéro de Table correspondant au signal d'intérêt
-    validnum(isignal)=find(strcmp(data.chan_name,signal{isignal})==1);
+    %Place the subplot for isignal
+    subplot(length(signal)+otherplots,1,isignal)
+    hold on
     
-    %Déterminer la limite supérieure et inférieure du signal pour les axes
-    top(isignal)=max(max(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
-    bottom(isignal)=min(min(data.(['Table' num2str(validnum(isignal))])(:,cycles)));
+    % find Table number of each SIGNAL used to validate
+    validnum(isignal)=find(strcmp(data.config.chan_name,signal{isignal})==1);
     
-end
-
-figure(1)
-clf
-
-%% Initialise the graph
-for isignal=1:numchan % Plot each signal
+    if iscell(data.Table)
+        % if input is a cell array, use cellfun
+        
+        %determine the max/min of each stride, than compute overall max/min to
+        %adjust axes
+        top(isignal)=max(cellfun(@(x)(max(x(:,validnum(isignal)))),data.Table));
+        bottom(isignal)=min(cellfun(@(x)(min(x(:,validnum(isignal)))),data.Table));
+        
+        % plot each stride of the signal as an handle
+        h(cycles,isignal)=cellfun(@(x)(plot(x(:,validnum(isignal)))),data.Table(cycles));
+        
+    elseif isnumeric(data.Table)
+        % if input is a matrix,  we need to add 'omitnan' as matrix are padded
+        %with NaNs.
+        
+        % determine the max/min of each stride, than compute overall max/min
+        top(isignal) = max(max(data.Table(:,cycles),[],'omitnan'));
+        bottom(isignal) = min(min(data.Table(:,cycles),[],'omitnan'));
+        
+        % plot each stride of the signal as an handle
+        h(cycles,isignal)=plot(data.Table(:,cycles));
+        
+    end
     
-    subplot(numchan+1,1,isignal) %numchan2+1
-    h(cycles,isignal)=plot(data.(['Table' num2str(validnum(isignal))])(:,cycles));
-    
+    % set all plots to blue (valid)
     set(h(cycles,isignal),'color','b');
     
-    hold on;
-    
+    % adjust axes
     a=axis;
     axis([a(1) a(2) bottom(isignal) top(isignal)])
     
-end %For
+end %For isignal
 
-% Plot length of each trial if flag in varargin
+% Plot stride duration if 'flagDuree' is in VarArgin
 if sum(strcmp(varargin, 'flagDuree')) == 1
     
-for icycle=1:length(cycles)
     
-    subplot(numchan+1,1,numchan+1)
-    h(cycles(icycle),numchan+1)=plot(cycles(icycle),data.Cycle_Table(cycles(icycle),2)-data.Cycle_Table(cycles(icycle),1));
-    hold on
-    
-    set(h(cycles(icycle),numchan+1),'color','b','marker','o');
+    for icycle=1:length(cycles)
+        % Place the stride duration plot next to all signals
+        subplot(length(signal)+otherplots,1,length(signal)+1)
+        
+        % for each stride plot stride duration as a function of stride number
+        h(cycles(icycle),length(signal)+1)=plot(cycles(icycle),data.Cycle_Table(cycles(icycle),2)-data.Cycle_Table(cycles(icycle),1)); % should change to duration
+        hold on
+        
+        % set all strides to valid (blue)
+        set(h(cycles(icycle),length(signal)+1),'color','b','marker','o');
+        
+    end
     
 end
 
-end
-
-% Plot mean value of Table1 if flag in varargin
+% Plot mean value of the first signal if flag in varargin
 if sum(strcmp(varargin, 'flagMean')) == 1
     
-for icycle=1:length(cycles)
-    
-    subplot(numchan+1,1,numchan+1)
-    h(cycles(icycle),numchan+1) = plot(cycles(icycle),nanmean(data.Table1(:,cycles(icycle))));
-    hold on
-    
-    set(h(cycles(icycle),numchan+1),'color','b','marker','o');
+    for icycle=1:length(cycles)
+        
+        % Place the mean value plot next to all signals and next to stride
+        % duration plot (if 'flagDuree')
+        subplot(length(signal)+otherplots,1,length(signal)+otherplots)
+        hold on
+        
+        if iscell(data.Table)
+            % plot mean value of each signal as an handle
+            
+            h(cycles(icycle),length(signal)+otherplots) = plot(cycles(icycle),nanmean(data.Table{cycles(icycle)}(:,1)));
+        elseif isnumeric(data.Table)
+            h(cycles(icycle),length(signal)+otherplots) = plot(cycles(icycle),nanmean(data.Table(:,cycles(icycle))));
+            
+        end
+        
+        % set all strides to valid (blue)
+        set(h(cycles(icycle),length(signal)+otherplots),'color','b','marker','o');
+        
+    end
     
 end
 
-end
-
-
-xlabel('click in the white space when finished');
 
 %% clean data
-bad_cycles=[];
+% Initialize variables
 count=0;
 over=0;
 
-while not(over)
+while over~=1
     
+    % Select bad cycles
     waitforbuttonpress;
-    hz=gco;
-    [bad,channel]=find(h==hz);
+    hz = gco;
+    
+    % If user clicked on an an object, get its ID
+    [bad,~] = find(h==hz);
     
     if not(isempty(bad))
-        set(h(bad,1:numchan),'color','r','linewidth',2);
+        % Set all signals of the selected strides as potentially non valid (red)
+        set(h(bad,1:length(signal)),'color','r','linewidth',2);
         ylabel(bad);
         
         if sum(strcmp(varargin, 'flagMean')) == 1 || sum(strcmp(varargin, 'flagDuree')) == 1
-        set(h(bad,numchan+1),'color','r','marker','o');
+            set(h(bad,length(signal)+1:length(signal)+otherplots),'color','r','marker','o');
         end
         
-        for isignal=1:numchan
+        % Bring selected  stride to front
+        for isignal=1:length(signal)
             uistack(h(bad,isignal),'top');
         end
         
-        confirmation=menu('Non valide?','oui','non');
+        confirmation=menu(['Stride #', num2str(bad), ', Non valid?'],'Yes','No');
         
         if confirmation==1
-            
+            % If the selected stride is bad, delete from the graph and save
+            % its ID
             delete(h(bad,:))
             count=count+1;
             bad_cycles(count)=bad;
             
         else
             
-            set(h(bad,1:numchan),'color','b','linewidth',0.5);
+            % If the selected stride is not bad, set to valid (blue)
+            set(h(bad,1:length(signal)),'color','b','linewidth',0.5);
             
-        if sum(strcmp(varargin, 'flagMean')) == 1 || sum(strcmp(varargin, 'flagDuree')) == 1
-            set(h(bad,numchan+1),'color','b','marker','o');
+            if sum(strcmp(varargin, 'flagMean')) == 1 || sum(strcmp(varargin, 'flagDuree')) == 1
+                set(h(bad,length(signal)+1:length(signal)+otherplots),'color','b','marker','o');
             end
             
         end %if
         
     else
-        over=1;
-    end; %if
-end; %while
+        
+        %If the user selected no object (click in the white space), it is
+        %over
+        over=menu('Are you done selecting bad trials?','Yes','No');
+        
+    end %if
+end %while
 
-close(figure(1))
+close(myfig) 
