@@ -58,13 +58,13 @@ handles.output = hObject;
 % Find the rootpath of the GUI_analysis_JB codes and add all relevant
 % subpaths
 tooldir = which('GUI_analysis_JB.m');
-tooldir = tooldir(1:end-17);
+handles.tooldir = tooldir(1:end-17);
 
 subfolders = {'FctMatlab','Organisation_groupe','Proprio','ResultGenerator'...
     ,'Traitement_donnees_Individuelles', 'Help'};
-addpath(tooldir);
+addpath(handles.tooldir);
 for ipath = 1:length(subfolders)
-    addpath([tooldir, subfolders{ipath}]);
+    addpath([handles.tooldir, subfolders{ipath}]);
 end
 
 %% my global variables
@@ -530,13 +530,10 @@ data = [movingsortedCOUPLE(~isnan(movingsortedCOUPLE)) ; movingResponse(~isnan(m
 
 save('AnalProprio.mat','AnalProprio')
  
-
-
-
-
-
 % --------------------------------------------------------------------
 function Help_Callback(hObject, eventdata, handles)
 % hObject    handle to Help (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+open([handles.tooldir, 'Help\helpGUIJB.pdf']);
