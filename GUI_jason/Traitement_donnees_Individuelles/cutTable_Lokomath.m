@@ -205,8 +205,9 @@ h=waitbar(0,'please wait');
 for istride=size(Cycle_Table,1):-1:1
     
     waitbar(istride/size(Cycle_Table,1),h);
-               
-        Table{istride} = fdata(Cycle_Table(istride,1):Cycle_Table(istride,2),:).*config.chan_gain;
+         
+        Table{istride} = bsxfun(@times,fdata(Cycle_Table(istride,1):Cycle_Table(istride,2),:),config.chan_gain);
+        %Table{istride} = fdata(Cycle_Table(istride,1):Cycle_Table(istride,2),:).*config.chan_gain;
    
 end %for istride
 
