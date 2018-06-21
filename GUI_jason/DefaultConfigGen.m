@@ -12,7 +12,7 @@ config.chan_name = {'TA','SOL','GM','VL','RF','Knee','CONS_F',...
 
 %% Identifier event channels with properties (all scalars)
 config.ISFF_channel = 7; % ISFF_channel:Channel with FF command (e.g. CONS_F)
-config.FFdetect_level = 0.6; % FFdetect_level:Threshold for FF detection (should be an positive scalar)
+config.FFdetect_level = 1; % FFdetect_level:Threshold for FF detection (should be an positive scalar)
 
 config.ISRFLX_channel = 0; % ISRFLX_channel:Channel to identify RFLX, catch, anticatch (e.g. Memory gate)
 config.RFLXdetect_level = 0.4; % RFLXdetect_level:Threshold for event channel (should be a positive scalar)
