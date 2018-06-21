@@ -32,6 +32,7 @@ signal=decimate(signal,5);
 choice_redo=1;
 
 while choice_redo == 1
+    clear Cycle_Table identifiant_init
     
     %% Manually define detection threshold, cycle duration and refractory period
     
