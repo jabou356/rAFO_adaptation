@@ -171,8 +171,13 @@ if Choice_offset == 1
     
     % create the offset
     offset=present-desired;
+    
+    if Cycle_Table(2,1)-offset>1
     Cycle_Table(2:end,1)=Cycle_Table(2:end,1)-offset;
     Cycle_Table(2:end,2)=Cycle_Table(2:end,2)-offset;
+    else
+    menu('Too big offset, The beginning of the stride is before the beginning of the file','ok');
+    end
     
 elseif Choice_offset == 2
     %% If you want to create an offset based on the beginning of the stride
@@ -181,8 +186,12 @@ elseif Choice_offset == 2
     offset=round(offset(1));
     
     % apply the offset
-    Cycle_Table(2:end,1)=Cycle_Table(2:end,1) + offset;
-    Cycle_Table(2:end,2)=Cycle_Table(2:end,2) + offset;
+    if Cycle_Table(end-1,2)+offset<size(fdata,1)
+    Cycle_Table(1:end-1,1)=Cycle_Table(1:end-1,1) + offset;
+    Cycle_Table(1:end-1,2)=Cycle_Table(1:end-1,2) + offset;
+    else
+    menu('Too big offset, The end of the last stride is after the end of the file','ok');
+    end
     
 end 
 close(myfig)
