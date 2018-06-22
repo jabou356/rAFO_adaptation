@@ -36,7 +36,7 @@ while choice==1
     %% process EMG data
     nemg = length(config.EMG_channels);
     % rebase EMG
-    data(:,1:nemg) = data(:,1:nemg)- mean(data(:,1:nemg));
+    data(:,1:nemg) = bsxfun(@minus,data(:,1:nemg), mean(data(:,1:nemg)));
     
     % Filter EMG data
     Fc=config.EMG_filter;
