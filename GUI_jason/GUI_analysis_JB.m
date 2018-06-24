@@ -284,7 +284,7 @@ function KinematicAnalysis_Callback(hObject, eventdata, handles)
 % This function generates Kinematic outcome measures for FF adaptation
 
 % Load GroupData
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
+[fn,pn]=uigetfile('*.mat','Choose your GroupData.mat data file');
 load([pn,fn],'-mat');
 cd(pn)
 
@@ -320,7 +320,7 @@ function TAAnalysis_Callback(hObject, eventdata, handles)
 
 %This function generates TA outcome measures for FF adaptation
 
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
+[fn,pn]=uigetfile('*.mat','Choose your GroupData.mat data file');
 load([pn,fn],'-mat');
 cd(pn)
 
@@ -383,7 +383,7 @@ function GENERICAnalysis_Callback(hObject, eventdata, handles)
 % This function generates GENERIC SIGNAL outcome measures for FF adaptation
 
 % Load GroupData
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
+[fn,pn]=uigetfile('*.mat','Choose your GroupData.mat data file');
 load([pn,fn],'-mat');
 cd(pn)
 
@@ -421,7 +421,7 @@ function GENERICAnalysisEMG_Callback(hObject, eventdata, handles)
 
 %This function generates GENERIC EMG outcome measures for FF adaptation
 
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données de groupe');
+[fn,pn]=uigetfile('*.mat','Choose your GroupData.mat data file');
 load([pn,fn],'-mat');
 cd(pn)
 
@@ -461,7 +461,7 @@ function GroupData_TimeNorm_Callback(hObject, eventdata, handles)
 % This function generate Time normalized vectors for each stride of each
 % participant
 
-[fn,pn]=uigetfile('*.mat','Choisi ton fichier de données');
+[fn,pn]=uigetfile('*.mat','Choose your GroupData.mat data file');
 load([pn,fn],'-mat');
 cd(pn)
 
