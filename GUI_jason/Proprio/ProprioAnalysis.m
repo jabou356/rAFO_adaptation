@@ -49,13 +49,13 @@ for icond = 1:length(conditions)
             
             x = 1 : strideduration(condStrides{icond}(istride))-SyncData.SyncTiming(condStrides{icond}(istride))+1;
             y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_ENCO)';
-            AnalProprio.ENCO.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
+            AnalProprio.ENCO.(conditions{icond})(1:1000,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
             
             y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_COUPLE)';
-            AnalProprio.COUPLE.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
+            AnalProprio.COUPLE.(conditions{icond})(1:1000,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
             
             y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_CONSF)';
-            AnalProprio.CONS_F.(conditions{icond})(:,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
+            AnalProprio.CONS_F.(conditions{icond})(1:1000,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
             
             y = data{condStrides{icond}(istride)}(SyncData.SyncTiming(condStrides{icond}(istride)):end,chan_Response)';
             AnalProprio.bouton.(conditions{icond})(1:1000,istride)=interp1(x,y,1:(length(x)-1)/(999):length(x))';
@@ -65,6 +65,8 @@ for icond = 1:length(conditions)
             x2 = 1 : strideduration(condStrides{icond}(istride)+1);
             y = data{condStrides{icond}(istride)+1}(:,chan_Response)';
             AnalProprio.bouton.(conditions{icond})(1001:2000,istride)=interp1(x2,y,1:(length(x2)-1)/(999):length(x2))';
+            else
+            AnalProprio.bouton.(conditions{icond})(1001:2000,istride) = nan;
             end
 
 
@@ -72,10 +74,12 @@ for icond = 1:length(conditions)
             AnalProprio.dureeswing.(conditions{icond})(istride)=length(x);
             
         else
-            AnalProprio.ENCO.(conditions{icond})(:,istride) = nan;
-            AnalProprio.COUPLE.(conditions{icond})(:,istride) = nan;
-            AnalProprio.CONS_F.(conditions{icond})(:,istride) = nan;
-            AnalProprio.dureeswing.(conditions{icond})(:,istride) = nan;
+            AnalProprio.ENCO.(conditions{icond})(1:1000,istride) = nan;
+            AnalProprio.COUPLE.(conditions{icond})(1:1000,istride) = nan;
+            AnalProprio.CONS_F.(conditions{icond})(1:1000,istride) = nan;
+            AnalProprio.bouton.(conditions{icond})(1:2000,istride) = nan;
+
+            AnalProprio.dureeswing.(conditions{icond})(istride) = nan;
             
         end
         
