@@ -362,7 +362,7 @@ criticalCycles = [zeros(1,length(CTRLlast));CTRLlast; FFlast; fin];
 conditions = {'Baseline2', 'CHAMP', 'POST'};
 
 
-[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,conditions,criticalCycles,pn,AnalTA,SyncData);
+[AnalTA]=RBITAvariablesgeneratorTimenorm(GroupData.Cycle_Table,data,conditions,criticalCycles,AnalTA,SyncData);
 
 save([pn, 'AnalRBITA.mat'], 'AnalTA'); 
 
