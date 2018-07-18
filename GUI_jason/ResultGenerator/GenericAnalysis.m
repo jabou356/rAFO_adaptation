@@ -54,7 +54,7 @@ for isubject=x:n
                 x = 1 : length(data{isubject}{istride})-SyncData.SyncTiming{isubject}(istride)+1;
                 y = data{isubject}{istride}(SyncData.SyncTiming{isubject}(istride):end);
                 
-                AnalSignal.(Signal).(conditions{icond}){isubject}(:,k)=interp1(x,y,1:(length(x)-1)/(999):length(x));
+                AnalSignal.(Signal).(conditions{icond}){isubject}(1:1000,k)=interp1(x,y,1:(length(x)-1)/(999):length(x));
                 
                 % Duration of the analyzed period
                 AnalSignal.dureeswing.(conditions{icond}){isubject}(k)=length(x);
