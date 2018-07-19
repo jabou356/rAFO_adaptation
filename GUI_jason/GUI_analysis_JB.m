@@ -509,9 +509,7 @@ load('AnalProprio.mat');
 [sortedENCO,I] = sort(AnalProprio.peakDeltaENCOcorr.STIM); 
 Response = AnalProprio.Response.STIM(I); 
  
-for itrial = 1 :length(sortedENCO)-3 
-    movingsortedENCO (itrial) = mean(abs(sortedENCO(itrial:itrial+3)));     
-    movingResponse (itrial) = mean(Response(itrial:itrial+3));  
+ 
 for itrial = 1 :length(sortedENCO)-2 
     movingsortedENCO (itrial) = mean(abs(sortedENCO(itrial:itrial+2)));     
     movingResponse (itrial) = round(mean(Response(itrial:itrial+2)));  
@@ -529,9 +527,7 @@ AnalProprio.ZI.ENCO = movingsortedENCO(find(movingResponse==0,1,'last')) - movin
 [sortedCOUPLE,I] = sort(AnalProprio.peakDeltaCOUPLEcorr.STIM); 
 Response = AnalProprio.Response.STIM(I); 
  
-for itrial = 1 :length(sortedCOUPLE)-3 
-    movingsortedCOUPLE (itrial) = mean(abs(sortedCOUPLE(itrial:itrial+3)));     
-    movingResponse (itrial) = mean(Response(itrial:itrial+3));  
+
 for itrial = 1 :length(sortedCOUPLE)-2 
     movingsortedCOUPLE (itrial) = mean(abs(sortedCOUPLE(itrial:itrial+2)));     
     movingResponse (itrial) = round(mean(Response(itrial:itrial+2)));  
