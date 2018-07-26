@@ -505,24 +505,6 @@ cd(uigetdir([],'Go to your subject directory'))
 load('AnalProprio.mat'); 
  
 % Compute Outcomes for ENCO signal 
-%% Compute Outcomes for ENCO signal 
-[sortedENCO,I] = sort(AnalProprio.peakDeltaENCOcorr.STIM); 
-Response = AnalProprio.Response.STIM(I); 
- 
- 
-for itrial = 1 :length(sortedENCO)-2 
-    movingsortedENCO (itrial) = mean(abs(sortedENCO(itrial:itrial+2)));     
-    movingResponse (itrial) = round(mean(Response(itrial:itrial+2)));  
-end 
- 
-data = [movingsortedENCO(~isnan(movingsortedENCO)) ; movingResponse(~isnan(movingsortedENCO))]'; 
-[AnalProprio.Threshold.ENCO,AnalProprio.Slope.ENCO,AnalProprio.Incertainty.ENCO] = createFit(data,'ENCO'); 
-[AnalProprio.Threshold.ENCO,AnalProprio.Slope.ENCO,AnalProprio.InvSlope.ENCO] = createFit(data,'ENCO'); 
- 
-% Compute Outcomes for COUPLE signal 
-% Zone incertitude ENCO 
-AnalProprio.ZI.ENCO = movingsortedENCO(find(movingResponse==0,1,'last')) - movingsortedENCO(find(movingResponse==1,1,'first')); 
- 
 %% Compute Outcomes for COUPLE signal 
 [sortedCOUPLE,I] = sort(AnalProprio.peakDeltaCOUPLEcorr.STIM); 
 Response = AnalProprio.Response.STIM(I); 
@@ -532,13 +514,32 @@ for itrial = 1 :length(sortedCOUPLE)-2
     movingsortedCOUPLE (itrial) = mean(abs(sortedCOUPLE(itrial:itrial+2)));     
     movingResponse (itrial) = round(mean(Response(itrial:itrial+2)));  
 end 
- 
+
+% Zone incertitude COUPLE 
+AnalProprio.ZI.COUPLE = movingsortedCOUPLE(find(movingResponse==0,1,'first')) - movingsortedCOUPLE(find(movingResponse==1,1,'last')); 
+
 data = [movingsortedCOUPLE(~isnan(movingsortedCOUPLE)) ; movingResponse(~isnan(movingsortedCOUPLE))]'; 
-[AnalProprio.Threshold.COUPLE,AnalProprio.Slope.COUPLE,AnalProprio.Incertainty.COUPLE] = createFit(data,'COUPLE'); 
 [AnalProprio.Threshold.COUPLE,AnalProprio.Slope.COUPLE,AnalProprio.InvSlope.COUPLE] = createFit(data,'COUPLE'); 
  
-% Zone incertitude COUPLE 
-AnalProprio.ZI.COUPLE = movingsortedCOUPLE(find(movingResponse==0,1,'last')) - movingsortedCOUPLE(find(movingResponse==1,1,'first')); 
+save('AnalProprio.mat','AnalProprio');
+
+%% Compute Outcomes for ENCO signal 
+[sortedENCO,I] = sort(AnalProprio.peakDeltaENCOcorr.STIM); 
+Response = AnalProprio.Response.STIM(I); 
+ 
+ 
+for itrial = 1 :length(sortedENCO)-2 
+    movingsortedENCO (itrial) = mean(abs(sortedENCO(itrial:itrial+2)));     
+    movingResponse (itrial) = round(mean(Response(itrial:itrial+2)));  
+end 
+
+ 
+% Zone incertitude ENCO 
+AnalProprio.ZI.ENCO = movingsortedENCO(find(movingResponse==0,1,'first')) - movingsortedENCO(find(movingResponse==1,1,'last')); 
+
+data = [movingsortedENCO(~isnan(movingsortedENCO)) ; movingResponse(~isnan(movingsortedENCO))]'; 
+[AnalProprio.Threshold.ENCO,AnalProprio.Slope.ENCO,AnalProprio.InvSlope.ENCO] = createFit(data,'ENCO'); 
+ 
  
 save('AnalProprio.mat','AnalProprio');
  
