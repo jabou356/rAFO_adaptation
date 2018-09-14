@@ -15,7 +15,7 @@ if Question==1
     load([pathname,filename]);
     
     % Determine the number of participants already included in GroupData
-    N = length(GroupData.Signal{1});
+    N = length(GroupData.(Signal{1}));
     
 else
     % If you create a new GroupData file, initiate it
