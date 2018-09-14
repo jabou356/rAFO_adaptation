@@ -41,7 +41,7 @@ for isujet=nsujets:-1:1
             
                 if max(SyncData.SyncTiming{isujet})>1 % if we use a SyncTiming
                 x=SyncData.SyncTiming{isujet}(istride)-round(AnalTA.dureeswing.CHAMP{isujet}(k)*0.3):length(GroupData.CONS_F{isujet}{istride}(:));
-                y=GroupData.CONS_F{isujet}{istride}(x)';
+                y=GroupData.CONS_F{isujet}{istride}(x);
                 TAratio.CONS_F{isujet}(:,k)=interp1(1:length(x),y,1:(length(x)-1)/1299:length(x));
                 
                 else % if we use the first data point of the stride
