@@ -368,11 +368,11 @@ save([pn, 'AnalRBITA.mat'], 'AnalTA');
 
 disp('AnalRBITA saved')
 
-%TAratiovariable = EMGratioCode(GroupData,AnalTA, criticalCycles, SyncData, pn);
+TAratiovariable = EMGratioCode(GroupData,AnalTA, criticalCycles, SyncData, pn);
 
-%save([pn, 'TAratio.mat'], 'TAratiovariable'); 
+save([pn, 'TAratio.mat'], 'TAratiovariable'); 
 
-%disp('TAratio saved')
+disp('TAratio saved')
 
 % --------------------------------------------------------------------
 function GENERICAnalysis_Callback(hObject, eventdata, handles)
