@@ -220,7 +220,7 @@ if config.ISRFLX_channel>0 %if there are reflexes
         
     for istride = size(Cycle_Table,1):-1:1
         
-        if max(abs(Table{istride}(:,config.ISRRFLX_channel)))>config.detect_level %  By pass detect_onset, detect offset. S'il y a un reflexe mal placé, je veux le savoir
+        if max(abs(Table{istride}(:,config.ISRFLX_channel)))>config.RFLXdetect_level %  By pass detect_onset, detect offset. S'il y a un reflexe mal placé, je veux le savoir
             Cycle_Table(istride,4)=1;
         end
     end
